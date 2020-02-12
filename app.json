@@ -1,4 +1,7 @@
 {
   "name": "mehematay",
-  "displayName": "mehematay"
+  "displayName": "mehematay",
+     "expo": {
+         "platforms": ["web"]
+     }
 }

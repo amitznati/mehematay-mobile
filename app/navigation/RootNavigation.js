@@ -10,38 +10,10 @@ import {
 } from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createStackNavigator} from '@react-navigation/stack';
+import {DayTimes} from '../screens';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const {width} = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-  },
-  header: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    fontFamily: 'Lato-Regular',
-    paddingHorizontal: 20,
-  },
-  headerTitleStyle: {
-    color: '#ffffff',
-    fontFamily: 'Lato-Light',
-    fontSize: 20,
-    marginRight: 20,
-  },
-  imageStyle: {
-    flex: 1,
-    width,
-  },
-});
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-// import {colors, fonts} from './styles';
-
 const headerBackground = require('../../assets/images/topBarBg.png');
 
 const navigationOptions = ({navigation, route}) => ({
@@ -78,19 +50,11 @@ function HomeScreen({navigation}) {
   );
 }
 
-function NotificationsScreen({navigation}) {
-  return (
-    <View style={styles.container}>
-      <Button onPress={() => navigation.goBack()} title="Go back home" />
-    </View>
-  );
-}
-
 const Drawer = createDrawerNavigator();
 
 const routeConfig = [
-  {name: 'home', label: 'בית', component: HomeScreen},
-  {name: 'dayTimes', label: 'זמני היום', component: NotificationsScreen},
+  {name: 'Home', label: 'בית', component: HomeScreen},
+  {name: 'dayTimes', label: 'זמני היום', component: DayTimes},
 ];
 const getTitleText = route => {
   const routeItem = routeConfig.find(r => r.name === route.name);
@@ -127,3 +91,30 @@ export default function RootNavigation() {
     </Drawer.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  header: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontFamily: 'Lato-Regular',
+    paddingHorizontal: 20,
+  },
+  headerTitleStyle: {
+    color: '#ffffff',
+    fontFamily: 'Lato-Light',
+    fontSize: 20,
+    marginRight: 20,
+  },
+  imageStyle: {
+    flex: 1,
+    width,
+  },
+});
