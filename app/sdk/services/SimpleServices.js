@@ -11,12 +11,21 @@ class SimpleServices {
     }`;
   };
 
+  getSunTimesUrl = () => {
+    return 'https://api.sunrise-sunset.org/json';
+  };
+
   getDummyPosts = () => {
     return this.serviceBase.ajax.get({url: this.getDummyPostsUrl()});
   };
 
   getPostById = ({payload}) => {
     return this.serviceBase.ajax.get({url: this.getDummyPostsUrl(payload.id)});
+  };
+
+  loadSunTimes = ({config}) => {
+    const url = this.getSunTimesUrl();
+    return this.serviceBase.ajax.get({url, config});
   };
 }
 

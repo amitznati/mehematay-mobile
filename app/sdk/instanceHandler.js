@@ -9,7 +9,10 @@ const createStoreInstance = () => {
   widgets.forEach(widget => {
     reducerMap[widget.config.sliceName] = widget.reducer;
   });
-  return createStore(combineReducers(reducerMap), composeWithDevTools());
+  return createStore(
+    combineReducers(reducerMap),
+    __DEV__ && composeWithDevTools(),
+  );
 };
 export const getStoreInstance = () => {
   if (!storeInstance) {

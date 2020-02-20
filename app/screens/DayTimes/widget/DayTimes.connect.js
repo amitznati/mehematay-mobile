@@ -6,12 +6,14 @@ const dayTimesApi = getInstance().DayTimesApi;
 
 const mapStateToProps = () => {
   return {
-    data: dayTimesApi.getDataSelector(),
+    sunTimes: dayTimesApi.getSunTimesSelector(),
+    selectedDate: dayTimesApi.getSelectedDateSelector()
   };
 };
 
 const mapDispatchToProps = () => ({
-  updateData: dayTimesApi.updateData,
+  loadSunTimesCurrentLocation: dayTimesApi.loadSunTimesCurrentLocation,
+  onDateChange: dayTimesApi.onDateChange,
 });
 
 export default connect(

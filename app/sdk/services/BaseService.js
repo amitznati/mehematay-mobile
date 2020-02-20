@@ -2,7 +2,7 @@ import axios from 'axios';
 
 class BaseService {
   get = ({url, config}) => {
-    return axios.get(url, config);
+    return axios.get(url, {params: {...config}});
   };
 
   post = ({url, data, config}) => {

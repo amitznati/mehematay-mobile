@@ -6,12 +6,12 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  Text,
 } from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createStackNavigator} from '@react-navigation/stack';
-import {DayTimes} from '../screens';
+import {Drawer as UIKittenDrawer, Text} from '@ui-kitten/components';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {DayTimes} from '../screens';
 
 const {width} = Dimensions.get('window');
 const headerBackground = require('../../assets/images/topBarBg.png');
@@ -54,7 +54,12 @@ const Drawer = createDrawerNavigator();
 
 const routeConfig = [
   {name: 'Home', label: 'בית', component: HomeScreen},
-  {name: 'dayTimes', label: 'זמני היום', component: DayTimes},
+  {
+    name: 'dayTimes',
+    label: 'זמני היום',
+    component: DayTimes,
+    unmountOnBlur: true,
+  },
 ];
 const getTitleText = route => {
   const routeItem = routeConfig.find(r => r.name === route.name);
@@ -79,14 +84,30 @@ const navigationsList = routeConfig.map(item => {
       key={item.name}
       name={item.name}
       component={NewStackScreen}
-      options={{drawerLabel: item.label}}
+      options={{drawerLabel: item.label, unmountOnBlur: item.unmountOnBlur}}
     />
   );
 });
 
+const DrawerContent = ({navigation, state}) => {
+  const onSelect = index => {
+    navigation.navigate(state.routeNames[index]);
+  };
+
+  return (
+    <UIKittenDrawer
+      data={[{title: 'בית'}, {title: 'זמני היום'}]}
+      selectedIndex={state.index}
+      onSelect={onSelect}
+    />
+  );
+};
+
 export default function RootNavigation() {
   return (
-    <Drawer.Navigator initialRouteName="Home">
+    <Drawer.Navigator
+      initialRouteName="Home"
+      drawerContent={props => <DrawerContent {...props} />}>
       {navigationsList}
     </Drawer.Navigator>
   );
