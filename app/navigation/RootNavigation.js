@@ -12,6 +12,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {Drawer as UIKittenDrawer, Text} from '@ui-kitten/components';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DayTimes} from '../screens';
+import SearchLocationView from '../screens/DayTimes/widget/components/DayTimes.SearchLocationView';
 
 const {width} = Dimensions.get('window');
 const headerBackground = require('../../assets/images/topBarBg.png');
@@ -60,6 +61,7 @@ const routeConfig = [
     component: DayTimes,
     unmountOnBlur: true,
   },
+  {name: 'searchLocation', label: 'חפש מיקום', component: SearchLocationView},
 ];
 const getTitleText = route => {
   const routeItem = routeConfig.find(r => r.name === route.name);

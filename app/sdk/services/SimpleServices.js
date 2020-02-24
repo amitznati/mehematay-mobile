@@ -1,30 +1,28 @@
 import BaseService from './BaseService';
+import MockService from './MockService';
+import commonConfig from '../config';
 
 class SimpleServices {
   constructor() {
-    this.serviceBase = BaseService;
+    this.serviceBase = commonConfig.useMocks ? MockService : BaseService;
   }
-
-  getDummyPostsUrl = id => {
-    return `https://my-json-server.typicode.com/typicode/demo/posts${
-      id ? '/' + id : ''
-    }`;
-  };
 
   getSunTimesUrl = () => {
     return 'https://api.sunrise-sunset.org/json';
   };
 
-  getDummyPosts = () => {
-    return this.serviceBase.ajax.get({url: this.getDummyPostsUrl()});
-  };
-
-  getPostById = ({payload}) => {
-    return this.serviceBase.ajax.get({url: this.getDummyPostsUrl(payload.id)});
+  getLoadLocationNameUrl = () => {
+    return 'https://api.opencagedata.com/geocode/v1/json';
   };
 
   loadSunTimes = ({config}) => {
     const url = this.getSunTimesUrl();
+    return this.serviceBase.ajax.get({url, config});
+  };
+
+  loadLocationName = ({config}) => {
+    config.key = `${commonConfig.OPEN_CAGE_API_KEY}`;
+    const url = this.getLoadLocationNameUrl();
     return this.serviceBase.ajax.get({url, config});
   };
 }

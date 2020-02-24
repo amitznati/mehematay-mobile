@@ -24,8 +24,16 @@ export const getSelectedCoordsSelector = createSelector(
   },
 );
 
+export const getSeLocationNameSelector = createSelector(
+  sliceSelector,
+  slice => {
+    return slice.locationName;
+  },
+);
+
 export default {
   getSunTimesSelector,
   getSelectedDateSelector,
   getSelectedCoordsSelector,
+  getSeLocationNameSelector,
 };

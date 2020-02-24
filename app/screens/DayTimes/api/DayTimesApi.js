@@ -9,6 +9,7 @@ export const ActionTypes = {
   LOAD_SUN_TIMES: 'LOAD_SUN_TIMES',
   SET_SELECTED_DATE: 'SET_SELECTED_DATE',
   SET_SELECTED_COORDS: 'SET_SELECTED_COORDS',
+  LOAD_LOCATION_NAME: 'LOAD_LOCATION_NAME',
 };
 export default class DayTimesApi extends BaseApi {
   getSunTimesSelector = () => {
@@ -23,8 +24,8 @@ export default class DayTimesApi extends BaseApi {
       SimpleServices.loadSunTimes,
       {
         config: {
-          lat: coords.latitude,
-          lng: coords.longitude,
+          lat: coords.latitude, // 31.0579367
+          lng: coords.longitude, // 35.0389234
           formatted: 0,
           date: moment(date).format('YYYY-MM-DD'),
         },
@@ -58,15 +59,43 @@ export default class DayTimesApi extends BaseApi {
     const formatted = this.toHHMMSS(dayLan / 12);
     const retVal = {};
     retVal.dayHour = formatted;
+    retVal.dayLength = this.toHHMMSS(dayLan);
     for (let time in payload) {
       retVal[time] = moment(payload[time]).format('HH:mm:ss');
     }
     return retVal;
   };
 
+  loadLocationName = coords => {
+    this.serviceRequest(
+      SimpleServices.loadLocationName,
+      {
+        config: {
+          q: `${coords.latitude}, ${coords.longitude}`,
+          language: 'he',
+          pretty: 1,
+        },
+      },
+      ActionTypes.LOAD_LOCATION_NAME,
+      this.onLoadLocationNameSuccess,
+    );
+  };
+
+  onLoadLocationNameSuccess = res => {
+    console.log(res);
+    const locationName =
+      res &&
+      res.data &&
+      res.data.results &&
+      res.data.results[0] &&
+      res.data.results[0].formatted;
+    return locationName;
+  };
+
   loadSunTimesCurrentLocation = async () => {
     Geolocation.getCurrentPosition(res => {
       this.setSelectedCoords(res.coords);
+      this.loadLocationName(res.coords);
       this.loadSunTimes(res.coords);
     });
   };
@@ -89,6 +118,10 @@ export default class DayTimesApi extends BaseApi {
 
   getSelectedCoordsSelector = () => {
     return selectors.getSelectedCoordsSelector(this.store.getState());
+  };
+
+  getSeLocationNameSelector = () => {
+    return selectors.getSeLocationNameSelector(this.store.getState());
   };
 
   setSelectedCoords = coords => {

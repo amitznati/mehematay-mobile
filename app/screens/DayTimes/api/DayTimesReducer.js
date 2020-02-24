@@ -1,8 +1,8 @@
 import {ActionTypes} from './DayTimesApi';
-import moment from 'moment';
 const initialState = {
   selectedDate: new Date(),
   sunTimes: {},
+  locationName: '',
 };
 const SUCCESS = '_SUCCESS';
 const reducer = (state = initialState, action) => {
@@ -32,6 +32,12 @@ const reducer = (state = initialState, action) => {
       newState = {
         ...state,
         selectedDate: payload,
+      };
+      break;
+    case `${ActionTypes.LOAD_LOCATION_NAME}${SUCCESS}`:
+      newState = {
+        ...state,
+        locationName: payload,
       };
       break;
     default:

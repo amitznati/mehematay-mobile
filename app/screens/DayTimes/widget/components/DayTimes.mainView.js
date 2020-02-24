@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, ScrollView, SafeAreaView, Image, View} from 'react-native';
-import {Layout, Text, Tab, TabBar} from '@ui-kitten/components';
+import {Layout, Text, Tab, TabBar, Button} from '@ui-kitten/components';
 import CustomDatePicker from './DayTimes.CustomDatePicker';
 const sunriseImage = require('../../../../../assets/images/sunrise-v1_24x17.png');
 const sunsetImage = require('../../../../../assets/images/sunset-v1_24x17RED.png');
@@ -45,17 +45,12 @@ export default class DayTimesMainView extends React.Component {
     this.dateRef = React.createRef();
   }
   componentDidMount(): void {
-    console.log('mount');
     const {loadSunTimesCurrentLocation} = this.props;
     loadSunTimesCurrentLocation();
   }
 
-  componentWillUnmount(): void {
-    console.log('unmount');
-  }
-
   render() {
-    const {sunTimes, selectedDate, onDateChange} = this.props;
+    const {sunTimes, selectedDate, onDateChange, locationName} = this.props;
     // const DateTitle = date => {
     //   console.log(date);
     //   return `date is ${date}`;
@@ -63,10 +58,11 @@ export default class DayTimesMainView extends React.Component {
     return (
       <Layout style={styles.container}>
         <ScrollView style={styles.scrollView}>
-          <Text style={styles.text}>יום רביעי י"ז שבט 12/02/2020</Text>
+          <Text style={styles.text}>יום רביעי י"ז שבט תש"פ</Text>
           <Text style={styles.text}>
-            {selectedDate && selectedDate.toLocaleString()}
+            {selectedDate && selectedDate.toLocaleDateString()}
           </Text>
+          <Text style={styles.text}>{locationName}</Text>
           <CustomDatePicker
             refProp={this.dateRef}
             size="large"
@@ -79,10 +75,16 @@ export default class DayTimesMainView extends React.Component {
             label="שנה תאריך"
             labelStyle={{fontSize: 16, textAlign: 'right'}}
           />
+          <Button
+            style={styles.link}
+            onPress={() => this.props.navigation.navigate('searchLocation')}>
+            שנה מיקום
+          </Button>
           <TimeCard name="זריחה" time={sunTimes.sunrise} image={sunriseImage} />
           <TimeCard name="שקיעה" time={sunTimes.sunset} image={sunsetImage} />
+          <TimeCard name="אורך היום" time={sunTimes.dayLength} />
           <TimeCard name="שעה זמנית" time={sunTimes.dayHour} />
-          <Text category="h5">לפי שיטת:</Text>
+          <Text category="h5">זמני היום לפי שיטת:</Text>
           <BottomTabBar />
           <TimeCard name="הנץ" time="06:34" />
           <TimeCard name="עלות השחר" time="06:34" />
@@ -127,5 +129,8 @@ const styles = StyleSheet.create({
   sunImage: {
     width: 25,
     height: 25,
+  },
+  link: {
+    padding: 10,
   },
 });
