@@ -2,24 +2,20 @@ import Geolocation from '@react-native-community/geolocation';
 import moment from 'moment';
 import SimpleServices from '../../../sdk/services/SimpleServices';
 import BaseApi from '../../../sdk/BaseApi';
+import {getInstance} from '../../../sdk';
 import selectors from './DayTimesSelectors';
 
 export const ActionTypes = {
   UPDATE_DATA: 'UPDATE_DATA',
   LOAD_SUN_TIMES: 'LOAD_SUN_TIMES',
   SET_SELECTED_DATE: 'SET_SELECTED_DATE',
-  SET_SELECTED_COORDS: 'SET_SELECTED_COORDS',
-  LOAD_LOCATION_NAME: 'LOAD_LOCATION_NAME',
 };
 export default class DayTimesApi extends BaseApi {
   getSunTimesSelector = () => {
     return selectors.getSunTimesSelector(this.store.getState());
   };
 
-  loadSunTimes = async (
-    coords = this.getSelectedCoordsSelector(),
-    date = this.getSelectedDateSelector(),
-  ) => {
+  loadSunTimes = async (coords, date = this.getSelectedDateSelector()) => {
     this.serviceRequest(
       SimpleServices.loadSunTimes,
       {
@@ -61,41 +57,17 @@ export default class DayTimesApi extends BaseApi {
     retVal.dayHour = formatted;
     retVal.dayLength = this.toHHMMSS(dayLan);
     for (let time in payload) {
-      retVal[time] = moment(payload[time]).format('HH:mm:ss');
+      if (payload.hasOwnProperty(time)) {
+        retVal[time] = moment(payload[time]).format('HH:mm:ss');
+      }
     }
     return retVal;
   };
 
-  loadLocationName = coords => {
-    this.serviceRequest(
-      SimpleServices.loadLocationName,
-      {
-        config: {
-          q: `${coords.latitude}, ${coords.longitude}`,
-          language: 'he',
-          pretty: 1,
-        },
-      },
-      ActionTypes.LOAD_LOCATION_NAME,
-      this.onLoadLocationNameSuccess,
-    );
-  };
-
-  onLoadLocationNameSuccess = res => {
-    console.log(res);
-    const locationName =
-      res &&
-      res.data &&
-      res.data.results &&
-      res.data.results[0] &&
-      res.data.results[0].formatted;
-    return locationName;
-  };
-
   loadSunTimesCurrentLocation = async () => {
+    const searchLocationApi = getInstance().SearchLocationApi;
     Geolocation.getCurrentPosition(res => {
-      this.setSelectedCoords(res.coords);
-      this.loadLocationName(res.coords);
+      searchLocationApi.loadLocationName(res.coords);
       this.loadSunTimes(res.coords);
     });
   };
@@ -114,20 +86,5 @@ export default class DayTimesApi extends BaseApi {
 
   getSelectedDateSelector = () => {
     return selectors.getSelectedDateSelector(this.store.getState());
-  };
-
-  getSelectedCoordsSelector = () => {
-    return selectors.getSelectedCoordsSelector(this.store.getState());
-  };
-
-  getSeLocationNameSelector = () => {
-    return selectors.getSeLocationNameSelector(this.store.getState());
-  };
-
-  setSelectedCoords = coords => {
-    this.dispatchStoreAction({
-      type: ActionTypes.SET_SELECTED_COORDS,
-      payload: coords,
-    });
   };
 }

@@ -25,6 +25,12 @@ class SimpleServices {
     const url = this.getLoadLocationNameUrl();
     return this.serviceBase.ajax.get({url, config});
   };
+
+  searchLocation = ({config}) => {
+    config.key = `${commonConfig.OPEN_CAGE_API_KEY}`;
+    const url = this.getLoadLocationNameUrl();
+    return this.serviceBase.ajax.get({url, config});
+  };
 }
 
 export default new SimpleServices();

@@ -2,11 +2,15 @@ import React from 'react';
 import {PermissionsAndroid} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
-import {mapping, light as lightTheme, dark as darkTheme} from '@eva-design/eva';
+import {mapping, light, dark} from '@eva-design/eva';
 
 import {MaterialCommunityIconsPack} from './icons-packes/material-community-icons';
 import {MaterialIconsPack} from './icons-packes/material-icons';
 import RootNavigation from './navigation/RootNavigation';
+import {ThemeContext} from './theme-context';
+
+const themes = {light, dark};
+
 async function requestCameraPermission() {
   try {
     const granted = await PermissionsAndroid.request(
@@ -30,6 +34,7 @@ export default class EntryPoint extends React.Component {
     super(props);
     this.state = {
       isLocationActive: false,
+      theme: 'light',
     };
   }
   componentDidMount(): void {
@@ -38,16 +43,25 @@ export default class EntryPoint extends React.Component {
     });
   }
 
+  toggleTheme = () => {
+    const {theme} = this.state;
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    this.setState({theme: nextTheme});
+  };
+
   render() {
-    const {isLocationActive} = this.state;
+    const {isLocationActive, theme} = this.state;
+    const currentTheme = themes[theme];
     return (
       <React.Fragment>
         <IconRegistry icons={[MaterialIconsPack, MaterialCommunityIconsPack]} />
-        <ApplicationProvider mapping={mapping} theme={lightTheme}>
-          <NavigationContainer>
-            {isLocationActive && <RootNavigation />}
-          </NavigationContainer>
-        </ApplicationProvider>
+        <ThemeContext.Provider value={{theme, toggleTheme: this.toggleTheme}}>
+          <ApplicationProvider mapping={mapping} theme={currentTheme}>
+            <NavigationContainer>
+              {isLocationActive && <RootNavigation />}
+            </NavigationContainer>
+          </ApplicationProvider>
+        </ThemeContext.Provider>
       </React.Fragment>
     );
   }

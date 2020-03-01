@@ -11,8 +11,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Drawer as UIKittenDrawer, Text} from '@ui-kitten/components';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {DayTimes} from '../screens';
-import SearchLocationView from '../screens/DayTimes/widget/components/DayTimes.SearchLocationView';
+import {DayTimes, SearchLocation} from '../screens';
 
 const {width} = Dimensions.get('window');
 const headerBackground = require('../../assets/images/topBarBg.png');
@@ -28,14 +27,14 @@ const navigationOptions = ({navigation, route}) => ({
       />
     );
   },
-  headerRight: () => (
+  headerLeft: () => (
     <View style={styles.header}>
-      <Text style={styles.headerTitleStyle}>{getTitleText(route)}</Text>
       <TouchableOpacity onPress={navigation.toggleDrawer}>
         <View>
           <Icon name="menu" size={30} color="white" />
         </View>
       </TouchableOpacity>
+      <Text style={styles.headerTitleStyle}>{getTitleText(route)}</Text>
     </View>
   ),
 });
@@ -59,9 +58,9 @@ const routeConfig = [
     name: 'dayTimes',
     label: 'זמני היום',
     component: DayTimes,
-    unmountOnBlur: true,
+    // unmountOnBlur: true,
   },
-  {name: 'searchLocation', label: 'חפש מיקום', component: SearchLocationView},
+  {name: 'searchLocation', label: 'חפש מיקום', component: SearchLocation},
 ];
 const getTitleText = route => {
   const routeItem = routeConfig.find(r => r.name === route.name);
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontFamily: 'Lato-Light',
     fontSize: 20,
-    marginRight: 20,
+    marginLeft: 20,
   },
   imageStyle: {
     flex: 1,

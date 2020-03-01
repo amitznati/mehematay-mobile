@@ -1,8 +1,7 @@
-import {ActionTypes} from './DayTimesApi';
+import {ActionTypes} from './SearchLocationApi';
 const initialState = {
-  selectedDate: new Date(),
-  sunTimes: {},
-  locationName: '',
+  locationResults: [],
+  selectedLocation: {},
 };
 const SUCCESS = '_SUCCESS';
 const reducer = (state = initialState, action) => {
@@ -10,22 +9,16 @@ const reducer = (state = initialState, action) => {
   const payload = action && action.payload;
   const type = action && action.type;
   switch (type) {
-    case ActionTypes.UPDATE_DATA:
+    case `${ActionTypes.SEARCH_LOCATION}${SUCCESS}`:
       newState = {
         ...state,
-        data: {...payload},
+        locationResults: [...payload],
       };
       break;
-    case `${ActionTypes.LOAD_SUN_TIMES}${SUCCESS}`:
+    case ActionTypes.SET_SELECTED_LOCATION:
       newState = {
         ...state,
-        sunTimes: {...payload},
-      };
-      break;
-    case ActionTypes.SET_SELECTED_DATE:
-      newState = {
-        ...state,
-        selectedDate: payload,
+        ...payload,
       };
       break;
     default:

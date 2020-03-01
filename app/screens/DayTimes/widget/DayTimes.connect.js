@@ -2,13 +2,14 @@ import {connect} from 'react-redux';
 import {getInstance} from '../../../sdk';
 import DayTimesComponent from './DayTimes.component';
 
-const dayTimesApi = getInstance().DayTimesApi;
-
+const sdkInstance = getInstance();
+const dayTimesApi = sdkInstance.DayTimesApi;
+const searchLocationApi = sdkInstance.SearchLocationApi;
 const mapStateToProps = () => {
   return {
     sunTimes: dayTimesApi.getSunTimesSelector(),
     selectedDate: dayTimesApi.getSelectedDateSelector(),
-    locationName: dayTimesApi.getSeLocationNameSelector(),
+    selectedLocation: searchLocationApi.getSelectedLocationSelector(),
   };
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, ScrollView, SafeAreaView, Image, View} from 'react-native';
-import {Layout, Text, Tab, TabBar, Button} from '@ui-kitten/components';
+import {Layout, Text, Tab, TabBar, Button, Icon} from '@ui-kitten/components';
 import CustomDatePicker from './DayTimes.CustomDatePicker';
 const sunriseImage = require('../../../../../assets/images/sunrise-v1_24x17.png');
 const sunsetImage = require('../../../../../assets/images/sunset-v1_24x17RED.png');
@@ -25,7 +25,7 @@ const TimeCard = ({name, time, image}) => {
         <Text>{name}</Text>
       </View>
       <View style={{flex: 1}}>
-        <Text style={{textAlign: 'right'}}>{time}</Text>
+        <Text style={{textAlign: 'left'}}>{time}</Text>
       </View>
       {image && (
         <View style={{flex: 1}}>
@@ -49,20 +49,24 @@ export default class DayTimesMainView extends React.Component {
     loadSunTimesCurrentLocation();
   }
 
+  navigateToSearchLocation = () => {
+    const {navigation, route} = this.props;
+    route.params = {name: 'Amit'};
+    navigation.navigate('searchLocation');
+  };
+
   render() {
-    const {sunTimes, selectedDate, onDateChange, locationName} = this.props;
-    // const DateTitle = date => {
-    //   console.log(date);
-    //   return `date is ${date}`;
-    // };
+    const {sunTimes, selectedDate, onDateChange, selectedLocation} = this.props;
     return (
       <Layout style={styles.container}>
         <ScrollView style={styles.scrollView}>
-          <Text style={styles.text}>יום רביעי י"ז שבט תש"פ</Text>
+          <Text style={styles.text}>יום שלישי ל' שבט תש"פ</Text>
           <Text style={styles.text}>
             {selectedDate && selectedDate.toLocaleDateString()}
           </Text>
-          <Text style={styles.text}>{locationName}</Text>
+          <Text style={styles.text}>
+            {selectedLocation && selectedLocation.formattedName}
+          </Text>
           <CustomDatePicker
             refProp={this.dateRef}
             size="large"
@@ -73,11 +77,14 @@ export default class DayTimesMainView extends React.Component {
               this.dateRef.current.blur();
             }}
             label="שנה תאריך"
-            labelStyle={{fontSize: 16, textAlign: 'right'}}
+            labelStyle={{fontSize: 16, textAlign: 'left'}}
           />
           <Button
             style={styles.link}
-            onPress={() => this.props.navigation.navigate('searchLocation')}>
+            icon={style => (
+              <Icon {...style} name="edit-location" pack="material" />
+            )}
+            onPress={this.navigateToSearchLocation}>
             שנה מיקום
           </Button>
           <TimeCard name="זריחה" time={sunTimes.sunrise} image={sunriseImage} />
@@ -115,7 +122,7 @@ const styles = StyleSheet.create({
   },
   card: {
     display: 'flex',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderRadius: 4,
@@ -124,13 +131,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   item: {
-    textAlign: 'right',
+    textAlign: 'left',
   },
   sunImage: {
     width: 25,
     height: 25,
   },
   link: {
-    padding: 10,
+    marginBottom: 10,
+    marginTop: 10,
   },
 });

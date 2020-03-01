@@ -56,7 +56,7 @@ export default function CustomDatePicker({refProp, ...props}) {
   return (
     <Datepicker
       {...props}
-      placement="right"
+      placement="left"
       ref={refProp}
       renderDay={DayCell}
       dateService={dateService}

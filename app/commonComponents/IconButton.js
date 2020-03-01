@@ -8,7 +8,7 @@ export default function IconButton(props) {
   const pack = props.pack || 'material';
   const styles = StyleSheet.create({
     buttonContainer: {
-      flexDirection: 'row-reverse',
+      flexDirection: 'row',
       flexWrap: 'wrap',
       borderRadius: size,
       alignItems: 'center',
