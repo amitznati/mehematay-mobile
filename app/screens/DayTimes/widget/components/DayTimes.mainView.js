@@ -1,7 +1,8 @@
 import React from 'react';
 import {StyleSheet, ScrollView, SafeAreaView, Image, View} from 'react-native';
-import {Layout, Text, Tab, TabBar, Button, Icon} from '@ui-kitten/components';
+import {Layout, Text, Tab, TabBar, Button, Icon, Modal} from '@ui-kitten/components';
 import CustomDatePicker from './DayTimes.CustomDatePicker';
+import SearchLocation from '../../../SearchLocation/widget/SearchLocation.connect';
 const sunriseImage = require('../../../../../assets/images/sunrise-v1_24x17.png');
 const sunsetImage = require('../../../../../assets/images/sunset-v1_24x17RED.png');
 const BottomTabBar = () => {
@@ -41,6 +42,7 @@ export default class DayTimesMainView extends React.Component {
     super(props);
     this.state = {
       date: null,
+      searchLocationOpen: false,
     };
     this.dateRef = React.createRef();
   }
@@ -49,16 +51,31 @@ export default class DayTimesMainView extends React.Component {
     loadSunTimesCurrentLocation();
   }
 
-  navigateToSearchLocation = () => {
-    const {navigation, route} = this.props;
-    route.params = {name: 'Amit'};
-    navigation.navigate('searchLocation');
+  closeSearchLocationModal = () => {
+    this.setState({searchLocationOpen: false});
+  };
+
+  onSelectLocation = location => {
+    this.closeSearchLocationModal();
+    this.props.onSelectLocation(location);
   };
 
   render() {
     const {sunTimes, selectedDate, onDateChange, selectedLocation} = this.props;
+    const {searchLocationOpen} = this.state;
     return (
       <Layout style={styles.container}>
+        <Modal
+          backdropStyle={styles.backdrop}
+          onBackdropPress={this.closeSearchLocationModal}
+          visible={searchLocationOpen}>
+          <Layout style={styles.modalContainer}>
+            <SearchLocation
+              onBack={this.closeSearchLocationModal}
+              onSelect={this.onSelectLocation}
+            />
+          </Layout>
+        </Modal>
         <ScrollView style={styles.scrollView}>
           <Text style={styles.text}>יום שלישי ל' שבט תש"פ</Text>
           <Text style={styles.text}>
@@ -84,7 +101,7 @@ export default class DayTimesMainView extends React.Component {
             icon={style => (
               <Icon {...style} name="edit-location" pack="material" />
             )}
-            onPress={this.navigateToSearchLocation}>
+            onPress={() => this.setState({searchLocationOpen: true})}>
             שנה מיקום
           </Button>
           <TimeCard name="זריחה" time={sunTimes.sunrise} image={sunriseImage} />
@@ -140,5 +157,14 @@ const styles = StyleSheet.create({
   link: {
     marginBottom: 10,
     marginTop: 10,
+  },
+  modalContainer: {
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    width: 400,
+    height: 600,
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });

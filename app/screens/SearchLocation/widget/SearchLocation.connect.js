@@ -12,7 +12,6 @@ const mapStateToProps = () => {
 
 const mapDispatchToProps = () => ({
   searchLocation: searchLocationApi.searchLocation,
-  onSelectLocation: searchLocationApi.onSelectLocation,
 });
 
 export default connect(

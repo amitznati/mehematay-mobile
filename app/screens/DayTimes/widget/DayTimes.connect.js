@@ -4,18 +4,18 @@ import DayTimesComponent from './DayTimes.component';
 
 const sdkInstance = getInstance();
 const dayTimesApi = sdkInstance.DayTimesApi;
-const searchLocationApi = sdkInstance.SearchLocationApi;
 const mapStateToProps = () => {
   return {
     sunTimes: dayTimesApi.getSunTimesSelector(),
     selectedDate: dayTimesApi.getSelectedDateSelector(),
-    selectedLocation: searchLocationApi.getSelectedLocationSelector(),
+    selectedLocation: dayTimesApi.getSelectedLocationSelector(),
   };
 };
 
 const mapDispatchToProps = () => ({
   loadSunTimesCurrentLocation: dayTimesApi.loadSunTimesCurrentLocation,
   onDateChange: dayTimesApi.onDateChange,
+  onSelectLocation: dayTimesApi.onSelectLocation,
 });
 
 export default connect(

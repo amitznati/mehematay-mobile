@@ -50,7 +50,6 @@ export default class SearchLocationApi extends BaseApi {
       ActionTypes.LOAD_LOCATION_NAME,
       this.onLoadLocationNameSuccess,
     );
-    this.setSelectedLocation({formattedName, coords});
     return formattedName;
   };
 
@@ -64,23 +63,7 @@ export default class SearchLocationApi extends BaseApi {
     );
   };
 
-  onSelectLocation = async index => {
-    const location = this.getLocationResultsSelector()[index];
-    this.setSelectedLocation(location);
-  };
-
-  setSelectedLocation = selectedLocation => {
-    this.dispatchStoreAction({
-      type: ActionTypes.SET_SELECTED_LOCATION,
-      payload: {selectedLocation},
-    });
-  };
-
   getLocationResultsSelector = () => {
     return selectors.getLocationResultsSelector(this.store.getState());
-  };
-
-  getSelectedLocationSelector = () => {
-    return selectors.getSelectedLocationSelector(this.store.getState());
   };
 }

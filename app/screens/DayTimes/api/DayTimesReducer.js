@@ -28,6 +28,12 @@ const reducer = (state = initialState, action) => {
         selectedDate: payload,
       };
       break;
+    case ActionTypes.SET_SELECTED_LOCATION:
+      newState = {
+        ...state,
+        ...payload,
+      };
+      break;
     default:
       return newState;
   }

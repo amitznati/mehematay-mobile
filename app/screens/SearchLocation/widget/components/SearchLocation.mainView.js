@@ -5,20 +5,18 @@ import {IconButton} from '../../../../commonComponents';
 import SearchInput from './SearchLocation.searchInput';
 
 export default function SearchLocationView(props) {
-  const {locationResults, searchLocation, navigation} = props;
+  const {locationResults, searchLocation, onBack, onSelect} = props;
 
-  const onSelectLocation = index => {
-    props.onSelectLocation(index).then(() => {
-      navigation.goBack();
-    });
+  const onSelectLocation = location => {
+    onSelect(location);
   };
 
-  const renderLocationItem = (location, index) => {
+  const renderLocationItem = (location) => {
     return (
       <Card
-        key={index}
+        key={location.formattedName}
         style={styles.locationContainer}
-        onPress={() => onSelectLocation(index)}>
+        onPress={() => onSelectLocation(location)}>
         <Text style={styles.locationText}>{location.formattedName}</Text>
       </Card>
     );
@@ -34,7 +32,7 @@ export default function SearchLocationView(props) {
         pack="material-community"
         size={50}
         wrapperProps={{
-          onPress: () => navigation.goBack(),
+          onPress: () => onBack(),
           style: styles.iconViewStyle,
         }}
       />

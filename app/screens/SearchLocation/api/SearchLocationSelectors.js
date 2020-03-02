@@ -10,14 +10,6 @@ export const getLocationResultsSelector = createSelector(
   },
 );
 
-export const getSelectedLocationSelector = createSelector(
-  sliceSelector,
-  slice => {
-    return slice.selectedLocation;
-  },
-);
-
 export default {
   getLocationResultsSelector,
-  getSelectedLocationSelector,
 };

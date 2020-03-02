@@ -9,6 +9,7 @@ export const ActionTypes = {
   UPDATE_DATA: 'UPDATE_DATA',
   LOAD_SUN_TIMES: 'LOAD_SUN_TIMES',
   SET_SELECTED_DATE: 'SET_SELECTED_DATE',
+  SET_SELECTED_LOCATION: 'SET_SELECTED_LOCATION',
 };
 export default class DayTimesApi extends BaseApi {
   getSunTimesSelector = () => {
@@ -64,11 +65,18 @@ export default class DayTimesApi extends BaseApi {
     return retVal;
   };
 
+  onSelectLocation = async location => {
+    this.setSelectedLocation(location);
+    this.loadSunTimes(location.coords);
+  };
+
   loadSunTimesCurrentLocation = async () => {
     const searchLocationApi = getInstance().SearchLocationApi;
     Geolocation.getCurrentPosition(res => {
-      searchLocationApi.loadLocationName(res.coords);
-      this.loadSunTimes(res.coords);
+      searchLocationApi.loadLocationName(res.coords).then(formattedName => {
+        this.setSelectedLocation({formattedName, coords: res.coords});
+        this.loadSunTimes(res.coords);
+      });
     });
   };
 
@@ -84,7 +92,18 @@ export default class DayTimesApi extends BaseApi {
     });
   };
 
+  setSelectedLocation = selectedLocation => {
+    this.dispatchStoreAction({
+      type: ActionTypes.SET_SELECTED_LOCATION,
+      payload: {selectedLocation},
+    });
+  };
+
   getSelectedDateSelector = () => {
     return selectors.getSelectedDateSelector(this.store.getState());
+  };
+
+  getSelectedLocationSelector = () => {
+    return selectors.getSelectedLocationSelector(this.store.getState());
   };
 }
