@@ -1,7 +1,7 @@
 import {ActionTypes} from './DayTimesApi';
 const initialState = {
   selectedDate: new Date(),
-  sunTimes: {},
+  dayTimes: [],
   locationName: '',
 };
 const SUCCESS = '_SUCCESS';
@@ -10,16 +10,10 @@ const reducer = (state = initialState, action) => {
   const payload = action && action.payload;
   const type = action && action.type;
   switch (type) {
-    case ActionTypes.UPDATE_DATA:
-      newState = {
-        ...state,
-        data: {...payload},
-      };
-      break;
     case `${ActionTypes.LOAD_SUN_TIMES}${SUCCESS}`:
       newState = {
         ...state,
-        sunTimes: {...payload},
+        dayTimes: [...payload],
       };
       break;
     case ActionTypes.SET_SELECTED_DATE:

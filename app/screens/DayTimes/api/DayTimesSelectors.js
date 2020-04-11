@@ -3,10 +3,10 @@ import config from './DayTimesConfig';
 
 const sliceSelector = state => state[config.sliceName];
 
-export const getSunTimesSelector = createSelector(
+export const getDayTimesSelector = createSelector(
   sliceSelector,
   slice => {
-    return slice.sunTimes;
+    return slice.dayTimes;
   },
 );
 
@@ -39,7 +39,7 @@ export const getSelectedLocationSelector = createSelector(
 );
 
 export default {
-  getSunTimesSelector,
+  getDayTimesSelector,
   getSelectedDateSelector,
   getSelectedCoordsSelector,
   getSeLocationNameSelector,

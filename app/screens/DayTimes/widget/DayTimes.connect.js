@@ -6,7 +6,7 @@ const sdkInstance = getInstance();
 const dayTimesApi = sdkInstance.DayTimesApi;
 const mapStateToProps = () => {
   return {
-    sunTimes: dayTimesApi.getSunTimesSelector(),
+    dayTimes: dayTimesApi.getDayTimesSelector(),
     selectedDate: dayTimesApi.getSelectedDateSelector(),
     selectedLocation: dayTimesApi.getSelectedLocationSelector(),
   };

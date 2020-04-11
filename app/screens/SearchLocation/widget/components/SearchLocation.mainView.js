@@ -11,7 +11,7 @@ export default function SearchLocationView(props) {
     onSelect(location);
   };
 
-  const renderLocationItem = (location) => {
+  const renderLocationItem = location => {
     return (
       <Card
         key={location.formattedName}

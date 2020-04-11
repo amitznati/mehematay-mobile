@@ -1,29 +1,30 @@
 import React from 'react';
-import {StyleSheet, ScrollView, SafeAreaView, Image, View} from 'react-native';
-import {Layout, Text, Tab, TabBar, Button, Icon, Modal} from '@ui-kitten/components';
+import {StyleSheet, ScrollView, Image, View} from 'react-native';
+import {Layout, Text, Button, Icon, Modal} from '@ui-kitten/components';
 import CustomDatePicker from './DayTimes.CustomDatePicker';
 import SearchLocation from '../../../SearchLocation/widget/SearchLocation.connect';
-const sunriseImage = require('../../../../../assets/images/sunrise-v1_24x17.png');
-const sunsetImage = require('../../../../../assets/images/sunset-v1_24x17RED.png');
-const BottomTabBar = () => {
-  const [index, setIndex] = React.useState(0);
+import DayHoursView from './DayTimes.dayHoursView';
+import HeDate from 'hebcal';
 
-  return (
-    <SafeAreaView style={{marginBottom: 8}}>
-      <TabBar selectedIndex={index} onSelect={setIndex}>
-        <Tab title={'הגר"א'} />
-        <Tab title={'מ"א'} />
-        <Tab title={'ר"ת'} />
-      </TabBar>
-    </SafeAreaView>
-  );
-};
+// const BottomTabBar = () => {
+//   const [index, setIndex] = React.useState(0);
+//
+//   return (
+//     <SafeAreaView style={{marginBottom: 8}}>
+//       <TabBar selectedIndex={index} onSelect={setIndex}>
+//         <Tab title={'הגר"א'} />
+//         <Tab title={'מ"א'} />
+//         <Tab title={'ר"ת'} />
+//       </TabBar>
+//     </SafeAreaView>
+//   );
+// };
 
-const TimeCard = ({name, time, image}) => {
+const TimeCard = ({title, time, image}) => {
   return (
     <View style={styles.card}>
       <View style={{flex: 2}}>
-        <Text>{name}</Text>
+        <Text>{title}</Text>
       </View>
       <View style={{flex: 1}}>
         <Text style={{textAlign: 'left'}}>{time}</Text>
@@ -60,8 +61,42 @@ export default class DayTimesMainView extends React.Component {
     this.props.onSelectLocation(location);
   };
 
+  renderDayTimes = () => {
+    const {dayTimes} = this.props;
+    const toRender = [];
+    for (let i = 0; i < dayTimes.length; i++) {
+      toRender.push(<TimeCard {...dayTimes[i]} />);
+    }
+    return toRender;
+  };
+
+  getHeDateString = () => {
+    const dates = [
+      'ניסן',
+      'אייר',
+      'סיון',
+      'תמוז',
+      'אב',
+      'אלול',
+      'תישרי',
+      'חשון',
+      'כסלו',
+      'טבט',
+      'שבט',
+      'אדר',
+    ];
+    const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+    const {selectedDate} = this.props;
+    const hebDate = HeDate.HDate(selectedDate);
+    const year = HeDate.gematriya(hebDate.year);
+    const month = dates[hebDate.month - 1];
+    const date = HeDate.gematriya(hebDate.day);
+    const day = days[selectedDate.getDay()];
+    return `יום ${day} ${date} ${month} ${year}`;
+  };
+
   render() {
-    const {sunTimes, selectedDate, onDateChange, selectedLocation} = this.props;
+    const {dayTimes, selectedDate, onDateChange, selectedLocation} = this.props;
     const {searchLocationOpen} = this.state;
     return (
       <Layout style={styles.container}>
@@ -76,8 +111,8 @@ export default class DayTimesMainView extends React.Component {
             />
           </Layout>
         </Modal>
-        <ScrollView style={styles.scrollView}>
-          <Text style={styles.text}>יום שלישי ל' שבט תש"פ</Text>
+        <View style={styles.scrollView}>
+          <Text style={styles.text}>{this.getHeDateString()}</Text>
           <Text style={styles.text}>
             {selectedDate && selectedDate.toLocaleDateString()}
           </Text>
@@ -104,24 +139,8 @@ export default class DayTimesMainView extends React.Component {
             onPress={() => this.setState({searchLocationOpen: true})}>
             שנה מיקום
           </Button>
-          <TimeCard name="זריחה" time={sunTimes.sunrise} image={sunriseImage} />
-          <TimeCard name="שקיעה" time={sunTimes.sunset} image={sunsetImage} />
-          <TimeCard name="אורך היום" time={sunTimes.dayLength} />
-          <TimeCard name="שעה זמנית" time={sunTimes.dayHour} />
-          <Text category="h5">זמני היום לפי שיטת:</Text>
-          <BottomTabBar />
-          <TimeCard name="הנץ" time="06:34" />
-          <TimeCard name="עלות השחר" time="06:34" />
-          <TimeCard name="זמן טלית ותפילין" time="17:34" />
-          <TimeCard name="סוף זמן קריאת שמע" time="06:34" />
-          <TimeCard name="סוף זמן תפילה" time="17:34" />
-          <TimeCard name="חצות היום והלילה" time="06:34" />
-          <TimeCard name="מנחה גדולה" time="06:34" />
-          <TimeCard name="מנחה קטנה" time="17:34" />
-          <TimeCard name="פלג המנחה" time="06:34" />
-          <TimeCard name="שקיעת החמה" time="17:34" />
-          <TimeCard name="צאת הכוכבים" time="17:34" />
-        </ScrollView>
+          <DayHoursView {...{dayTimes}} />
+        </View>
       </Layout>
     );
   }
@@ -133,6 +152,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     padding: 16,
+    flex: 2,
   },
   text: {
     textAlign: 'center',

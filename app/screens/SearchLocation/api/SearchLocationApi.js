@@ -27,13 +27,15 @@ export default class SearchLocationApi extends BaseApi {
     if (!results) {
       return [];
     }
-    return results.map(location => ({
-      formattedName: location.formatted,
-      coords: {
-        longitude: location.geometry.lng,
-        latitude: location.geometry.lat,
-      },
-    }));
+    return results
+      .filter(loc => loc.components._type === 'city')
+      .map(loc => ({
+        formattedName: loc.components.city,
+        coords: {
+          longitude: loc.geometry.lng,
+          latitude: loc.geometry.lat,
+        },
+      }));
   }
 
   loadLocationName = async coords => {

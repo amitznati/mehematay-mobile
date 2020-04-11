@@ -44,7 +44,7 @@ function HomeScreen({navigation}) {
     <View style={styles.container}>
       <Button
         onPress={() => navigation.navigate('dayTimes')}
-        title="Go to notifications"
+        title="זמני היום"
       />
     </View>
   );
