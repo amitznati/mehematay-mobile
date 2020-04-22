@@ -8,8 +8,8 @@ export const ActionTypes = {
   LOAD_LOCATION_NAME: 'LOAD_LOCATION_NAME',
 };
 export default class SearchLocationApi extends BaseApi {
-  searchLocation = async searchInput => {
-    this.serviceRequest(
+  searchLocation = async (searchInput, updateStore = true) => {
+    return this.serviceRequest(
       SimpleServices.searchLocation,
       {
         config: {
@@ -17,7 +17,7 @@ export default class SearchLocationApi extends BaseApi {
           language: 'he',
         },
       },
-      ActionTypes.SEARCH_LOCATION,
+      updateStore && ActionTypes.SEARCH_LOCATION,
       this._onSuccessSearchLocation,
     );
   };
@@ -38,9 +38,9 @@ export default class SearchLocationApi extends BaseApi {
       }));
   }
 
-  loadLocationName = async coords => {
+  getCityLocationByCoords = async coords => {
     const {latitude, longitude} = coords;
-    const formattedName = await this.serviceRequest(
+    const locationCity = await this.serviceRequest(
       SimpleServices.loadLocationName,
       {
         config: {
@@ -52,7 +52,8 @@ export default class SearchLocationApi extends BaseApi {
       ActionTypes.LOAD_LOCATION_NAME,
       this.onLoadLocationNameSuccess,
     );
-    return formattedName;
+    const cityLocation = await this.searchLocation(locationCity, false);
+    return cityLocation && cityLocation[0];
   };
 
   onLoadLocationNameSuccess = res => {
@@ -61,7 +62,9 @@ export default class SearchLocationApi extends BaseApi {
       res.data &&
       res.data.results &&
       res.data.results[0] &&
-      res.data.results[0].formatted
+      res.data.results[0].components &&
+      (res.data.results[0].components.town ||
+        res.data.results[0].components.city)
     );
   };
 

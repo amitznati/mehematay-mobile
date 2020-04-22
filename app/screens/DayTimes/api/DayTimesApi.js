@@ -1,4 +1,4 @@
-import Geolocation from '@react-native-community/geolocation';
+import GetLocation from 'react-native-get-location';
 import moment from 'moment';
 import SimpleServices from '../../../sdk/services/SimpleServices';
 import BaseApi from '../../../sdk/BaseApi';
@@ -99,20 +99,22 @@ export default class DayTimesApi extends BaseApi {
     this.loadSunTimes(location.coords);
   };
 
-  loadSunTimesCurrentLocation = async () => {
+  loadSunTimesCurrentLocation = () => {
     const searchLocationApi = getInstance().SearchLocationApi;
-    await Geolocation.getCurrentPosition(
-      res => {
-        searchLocationApi.loadLocationName(res.coords).then(formattedName => {
-          this.setSelectedLocation({formattedName, coords: res.coords});
-          this.loadSunTimes(res.coords);
-        });
-      },
-      error => {
-        console.log(error);
-      },
-      {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
-    );
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+    })
+      .then(res => {
+        console.log(res);
+        searchLocationApi
+          .getCityLocationByCoords(res)
+          .then(this.onSelectLocation);
+      })
+      .catch(error => {
+        const {code, message} = error;
+        console.warn(code, message);
+      });
   };
 
   onDateChange = async selectedDate => {
