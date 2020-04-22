@@ -47,24 +47,6 @@ export default class DayTimesApi extends BaseApi {
     );
   };
 
-  // toHHMMSS = sec => {
-  //   const sec_num = parseInt(sec, 10); // don't forget the second param
-  //   let hours = Math.floor(sec_num / 3600);
-  //   let minutes = Math.floor((sec_num - hours * 3600) / 60);
-  //   let seconds = sec_num - hours * 3600 - minutes * 60;
-  //
-  //   if (hours < 10) {
-  //     hours = `0${hours}`;
-  //   }
-  //   if (minutes < 10) {
-  //     minutes = `0${minutes}`;
-  //   }
-  //   if (seconds < 10) {
-  //     seconds = `0${seconds}`;
-  //   }
-  //   return `${hours}:${minutes}:${seconds}`;
-  // };
-
   onLoadSunTimesSuccess = res => {
     const payload = {...res.data.results};
     return this.getDayTimesPerAgra(payload);
@@ -79,13 +61,11 @@ export default class DayTimesApi extends BaseApi {
     };
     const getDayHourDate = dayHourRatio => {
       return new Date(
-        midnightDate.getTime() +
-          dayHourRatio * 3.6e6 +
+        1120780800000 +
+          dayHourRatio * 3600000 +
           new Date().getTimezoneOffset() * 60000,
       );
     };
-
-    const midnightDate = new Date('2005-07-08T00:00:00+0000');
     const {sunrise, sunset} = res;
     const retVal = {};
     retVal.sunrise = new Date(sunrise);
@@ -103,7 +83,7 @@ export default class DayTimesApi extends BaseApi {
     retVal.plagMinha = addHours(retVal.sunset, dayHourRatio * -1.25);
     retVal.tzetHakohavim = addMinutes(retVal.sunset, dayHourRatio * 18);
     retVal.tzetHakohavimRT = addMinutes(retVal.sunset, dayHourRatio * 72);
-
+    console.log('retVal: ', retVal);
     const retValWithTemplate = JSON.parse(JSON.stringify(dayTimesTemplateObj));
     Object.keys(retVal).forEach(field => {
       retValWithTemplate.find(t => t.key === field).time = moment(
@@ -121,18 +101,17 @@ export default class DayTimesApi extends BaseApi {
 
   loadSunTimesCurrentLocation = async () => {
     const searchLocationApi = getInstance().SearchLocationApi;
-    Geolocation.getCurrentPosition(
+    await Geolocation.getCurrentPosition(
       res => {
         searchLocationApi.loadLocationName(res.coords).then(formattedName => {
           this.setSelectedLocation({formattedName, coords: res.coords});
           this.loadSunTimes(res.coords);
         });
       },
-      error => {},
-      {
-        enableHighAccuracy: false,
-        maximumAge: 2000,
+      error => {
+        console.log(error);
       },
+      {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
     );
   };
 
