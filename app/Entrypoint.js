@@ -37,11 +37,11 @@ export default class EntryPoint extends React.Component {
       theme: 'light',
     };
   }
-  componentDidMount(): void {
-    requestCameraPermission().then(res => {
-      this.setState({isLocationActive: res});
-    });
-  }
+  // componentDidMount(): void {
+  //   requestCameraPermission().then(res => {
+  //     this.setState({isLocationActive: res});
+  //   });
+  // }
 
   toggleTheme = () => {
     const {theme} = this.state;
@@ -50,7 +50,7 @@ export default class EntryPoint extends React.Component {
   };
 
   render() {
-    const {isLocationActive, theme} = this.state;
+    const {theme} = this.state;
     const currentTheme = themes[theme];
     return (
       <React.Fragment>
@@ -58,7 +58,7 @@ export default class EntryPoint extends React.Component {
         <ThemeContext.Provider value={{theme, toggleTheme: this.toggleTheme}}>
           <ApplicationProvider mapping={mapping} theme={currentTheme}>
             <NavigationContainer>
-              {isLocationActive && <RootNavigation />}
+              <RootNavigation />
             </NavigationContainer>
           </ApplicationProvider>
         </ThemeContext.Provider>

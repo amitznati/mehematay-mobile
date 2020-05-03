@@ -99,7 +99,7 @@ export default class DayTimesMainView extends React.Component {
     const {dayTimes, selectedDate, onDateChange, selectedLocation} = this.props;
     const {searchLocationOpen} = this.state;
     return (
-      <Layout style={styles.container}>
+      <View style={styles.container}>
         <Modal
           backdropStyle={styles.backdrop}
           onBackdropPress={this.closeSearchLocationModal}
@@ -141,7 +141,7 @@ export default class DayTimesMainView extends React.Component {
           </Button>
           <DayHoursView {...{dayTimes}} />
         </View>
-      </Layout>
+      </View>
     );
   }
 }
@@ -149,6 +149,7 @@ export default class DayTimesMainView extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: 385,
   },
   scrollView: {
     padding: 16,
@@ -164,7 +165,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 4,
     borderWidth: 0.8,
-    borderColor: '#d6d7da',
     marginBottom: 8,
   },
   item: {

@@ -36,6 +36,7 @@ export default function SearchLocationView(props) {
           style: styles.iconViewStyle,
         }}
       />
+      <Text>החיפוש לפי ערים בלבד!</Text>
       <SearchInput onSearch={searchLocation} />
       <ScrollView keyboardShouldPersistTaps="always">
         {locationResults.map(renderLocationItem)}
@@ -50,8 +51,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'stretch',
-    paddingLeft: 8,
-    paddingRight: 8,
+    paddingLeft: 24,
+    paddingRight: 24,
   },
   iconViewStyle: {
     alignSelf: 'flex-end',
