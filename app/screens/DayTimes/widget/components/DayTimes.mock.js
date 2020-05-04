@@ -60,9 +60,7 @@ export default function DayTimesMock(props) {
         </View>
       </View>
       <View style={styles.openCalenderButtonView}>
-        <TouchableOpacity
-          activeOpacity={0.2}
-          style={styles.openCalenderButtonTouchable}>
+        <TouchableOpacity style={styles.openCalenderButtonTouchable}>
           <View style={styles.openCalenderButtonSVG}>
             <Svg
               width={170.482}
