@@ -1,5 +1,5 @@
 import React from 'react';
-import {PermissionsAndroid} from 'react-native';
+import {PermissionsAndroid, I18nManager} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {mapping, light, dark} from '@eva-design/eva';
@@ -10,6 +10,8 @@ import RootNavigation from './navigation/RootNavigation';
 import {ThemeContext} from './theme-context';
 
 const themes = {light, dark};
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
 
 async function requestCameraPermission() {
   try {

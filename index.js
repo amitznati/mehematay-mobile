@@ -1,29 +1,8 @@
-/**
- * @format
- */
+import { registerRootComponent } from 'expo';
 
-import {AppRegistry, Platform} from 'react-native';
-import App from './app/App';
-import {name as appName} from './app.json';
-import 'react-native-gesture-handler';
+import App from './App';
 
-if (__DEV__) {
-  global.XMLHttpRequest = global.originalXMLHttpRequest
-    ? global.originalXMLHttpRequest
-    : global.XMLHttpRequest;
-  global.FormData = global.originalFormData
-    ? global.originalFormData
-    : global.FormData;
-  global.Blob = global.originalBlob ? global.originalBlob : global.Blob;
-  global.FileReader = global.originalFileReader
-    ? global.originalFileReader
-    : global.FileReader;
-}
-
-AppRegistry.registerComponent(appName, () => App);
-
-if (Platform.OS === 'web') {
-  AppRegistry.runApplication(appName, {
-    rootTag: document.getElementById('root'),
-  });
-}
+// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
+// It also ensures that whether you load the app in the Expo client or in a native build,
+// the environment is set up appropriately
+registerRootComponent(App);

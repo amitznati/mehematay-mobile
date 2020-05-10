@@ -9,8 +9,10 @@ import {
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Drawer as UIKittenDrawer, Text} from '@ui-kitten/components';
-import LinearGradient from 'react-native-linear-gradient';
+import {LinearGradient} from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useFonts} from '@use-expo/font';
+import { AppLoading } from 'expo';
 import {DayTimes} from '../screens';
 import DayTimesMock from '../screens/DayTimes/widget/components/DayTimes.mock';
 
@@ -21,7 +23,8 @@ const MyHeader = ({scene, previous, navigation}) => {
     <View
       style={{
         width,
-        height: 60,
+        height: 70,
+        //paddingTop: 10
       }}>
       <View
         style={{
@@ -30,7 +33,8 @@ const MyHeader = ({scene, previous, navigation}) => {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height: 60,
+          height: 70,
+            paddingTop: 10,
         }}>
         <TouchableOpacity
           style={{paddingLeft: 20}}
@@ -55,7 +59,7 @@ const MyHeader = ({scene, previous, navigation}) => {
       </View>
       <LinearGradient
         locations={[0, 1]}
-        colors={['rgba(0,0,0,0.29)', 'rgba(253,253,253,0)']}
+        colors={['rgba(0,0,0,0.29)', 'rgba(71,71,71,0)']}
         style={styles.linearGradient}
       />
     </View>
@@ -64,15 +68,15 @@ const MyHeader = ({scene, previous, navigation}) => {
 
 const pageWithHeader = (Page, navigation) => {
   return (
-    <LinearGradient
-      start={{x: 1, y: 0}}
-      end={{x: 0, y: 1}}
-      locations={[0, 0.5, 0.6, 1]}
-      colors={['#8E3032', '#552022', '#552022', '#8E3032']}
-      style={styles.container}>
-      <MyHeader {...{navigation}} />
-      <Page />
-    </LinearGradient>
+      <LinearGradient
+          start={{x: 1, y: 0}}
+          end={{x: 0, y: 1}}
+          locations={[0, 0.5, 0.6, 1]}
+          colors={['#8E3032', '#552022', '#552022', '#8E3032']}
+          style={styles.container}>
+            <MyHeader {...{navigation}} />
+            <Page />
+      </LinearGradient>
   );
 };
 
@@ -167,9 +171,19 @@ const DrawerContent = ({navigation, state}) => {
     />
   );
 };
+let customFonts = {
+    'Assistant-Light': require('../../assets/fonts/Assistant-Light.ttf'),
+    'Assistant-Bold': require('../../assets/fonts/Assistant-Bold.ttf'),
+    'Assistant-Regular': require('../../assets/fonts/Assistant-Regular.ttf'),
+    'drugulinclm-bold-webfont': require('../../assets/fonts/drugulinclm-bold-webfont.ttf'),
+    'FontAwesome5_Solid': require('../../assets/fonts/FontAwesome5_Solid.ttf'),
+
+};
 
 export default function RootNavigation() {
-  return (
+    let [fontsLoaded] = useFonts(customFonts);
+
+  return fontsLoaded ? (
     <Drawer.Navigator
       initialRouteName="Home"
       drawerContent={props => <DrawerContent {...props} />}>
@@ -185,7 +199,7 @@ export default function RootNavigation() {
         component={DayTimesMockWithHeader}
       />
     </Drawer.Navigator>
-  );
+  ) : <AppLoading />
 }
 
 const styles = StyleSheet.create({

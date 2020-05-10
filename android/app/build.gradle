@@ -77,16 +77,19 @@ import com.android.build.OutputFile
 
 project.ext.react = [
     entryFile: "index.js",
-    enableHermes: false,  // clean and rebuild if changing
+    enableHermes: false,
+    bundleInRelease: false
 ]
 
+apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
 apply from: "../../node_modules/react-native/react.gradle"
-
 project.ext.vectoricons = [
     iconFontNames: [ 'MaterialCommunityIcons.ttf', 'MaterialIcons.ttf'] // Name of the font files you want to copy
 ]
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+apply from: "../../node_modules/expo-updates/expo-updates.gradle"
+
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
@@ -136,8 +139,8 @@ android {
         applicationId "com.mehematay"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "4.0"
+        versionCode 1
+        versionName "1.0"
     }
     splits {
         abi {
@@ -148,14 +151,6 @@ android {
         }
     }
     signingConfigs {
-        release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
-            }
-        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -170,11 +165,9 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://facebook.github.io/react-native/docs/signed-apk-android.
-            //signingConfig signingConfigs.debug
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-
         }
     }
     // applicationVariants are e.g. debug, release
@@ -196,8 +189,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha02'
+    addUnimodulesDependencies()
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
