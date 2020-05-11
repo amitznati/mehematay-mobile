@@ -1,14 +1,8 @@
-import SimpleServices from './SimpleServices';
 import mocks from './mocks';
 
 class MockAxios {
   get = (url, payload) => {
-    switch (url) {
-      case SimpleServices.getSunTimesUrl():
-        return mocks.loadSunTimes;
-      case SimpleServices.getLoadLocationNameUrl():
-        return mocks.loadLocationName;
-    }
+    return mocks[url];
   };
   post = (url, data, config) => {
     return {};

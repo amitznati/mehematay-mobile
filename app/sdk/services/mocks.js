@@ -11,7 +11,7 @@ export const searchLocation = JSON.parse(
 );
 
 export default {
-  loadLocationName,
-  loadSunTimes,
+  'https://api.opencagedata.com/geocode/v1/json': loadLocationName,
+  'https://api.sunrise-sunset.org/json': loadSunTimes,
   searchLocation,
 };

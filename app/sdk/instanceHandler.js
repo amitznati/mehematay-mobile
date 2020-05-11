@@ -26,7 +26,7 @@ const createInstance = () => {
   const apis = {};
   widgets.forEach(widget => {
     const api = widget.api;
-    apis[widget.config.apiName] = new api(getStoreInstance());
+    apis[widget.config.apiName] = new api(getStoreInstance(), apis);
   });
   return apis;
 };

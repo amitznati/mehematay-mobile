@@ -1,6 +1,7 @@
 export default class BaseApi {
-  constructor(store) {
+  constructor(store, APIsInstances) {
     this.store = store;
+    this.APIsInstances = APIsInstances;
   }
 
   dispatchStoreAction = action => {

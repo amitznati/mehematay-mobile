@@ -1,8 +1,7 @@
-import GetLocation from 'react-native-get-location';
+import * as Location from 'expo-location';
 import moment from 'moment';
 import SimpleServices from '../../../sdk/services/SimpleServices';
 import BaseApi from '../../../sdk/BaseApi';
-import {getInstance} from '../../../sdk';
 import selectors from './DayTimesSelectors';
 export const ActionTypes = {
   LOAD_SUN_TIMES: 'LOAD_SUN_TIMES',
@@ -96,20 +95,22 @@ export default class DayTimesApi extends BaseApi {
 
   onSelectLocation = async location => {
     this.setSelectedLocation(location);
-    this.loadSunTimes(location.coords);
+    await this.loadSunTimes(location.coords);
   };
 
-  loadSunTimesCurrentLocation = () => {
-    const searchLocationApi = getInstance().SearchLocationApi;
-    GetLocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-    })
-      .then(res => {
-        console.log(res);
-        searchLocationApi
-          .getCityLocationByCoords(res)
-          .then(this.onSelectLocation);
+  setErrorMsg = errMsg => {};
+
+  loadSunTimesCurrentLocation = async () => {
+    const {status} = await Location.requestPermissionsAsync();
+    if (status !== 'granted') {
+      this.setErrorMsg('Permission to access location was denied');
+    }
+
+    Location.getCurrentPositionAsync({})
+      .then(location => {
+        this.APIsInstances.SearchLocationApi.getCityLocationByCoords(
+          location.coords,
+        ).then(this.onSelectLocation);
       })
       .catch(error => {
         const {code, message} = error;
@@ -119,7 +120,7 @@ export default class DayTimesApi extends BaseApi {
 
   onDateChange = async selectedDate => {
     this.setSelectedData(selectedDate);
-    this.loadSunTimes(undefined, selectedDate);
+    await this.loadSunTimes(undefined, selectedDate);
   };
 
   setSelectedData = selectedDate => {
