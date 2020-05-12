@@ -1,10 +1,5 @@
 import * as React from 'react';
-import {
-  Button,
-  View,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import {Button, View, StyleSheet, Dimensions} from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {Drawer as UIKittenDrawer} from '@ui-kitten/components';
 import {useFonts} from '@use-expo/font';
@@ -67,11 +62,7 @@ export default function RootNavigation() {
       initialRouteName="Home"
       drawerContent={props => <DrawerContent {...props} />}>
       <Drawer.Screen key="home" name="home" component={HomeWithHeader} />
-      <Drawer.Screen
-        key="dayTimes"
-        name="dayTimes"
-        component={DayTimesPage}
-      />
+      <Drawer.Screen key="dayTimes" name="dayTimes" component={DayTimesPage} />
       <Drawer.Screen
         key="dayTimesMock"
         name="dayTimesMock"

@@ -6,24 +6,39 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
-  Easing,
 } from 'react-native';
 import {Text, Icon} from '@ui-kitten/components';
-import Svg, {Defs, Path, Use, G} from 'react-native-svg';
+import Svg, {Defs, Path, Use} from 'react-native-svg';
 import Hebcal from 'hebcal';
 
 const {width} = Dimensions.get('window');
 
 export default function DayTimesMock() {
   const [isCalenderOpen, setIsCalenderOpen] = React.useState(false);
-  const [animation] = React.useState(new Animated.Value(0));
+  const [calenderHeightAnimation] = React.useState(new Animated.Value(1));
+  const [rotateAnimation] = React.useState(new Animated.Value(0));
+  const [opacityAnimation] = React.useState(new Animated.Value(1));
+  const [weekDaysDataAnimation] = React.useState(new Animated.Value(110));
 
   const toggleCalender = () => {
-    Animated.timing(animation, {
-      toValue: isCalenderOpen ? 0 : 1,
-      duration: 500,
-      easing: Easing.linear,
-    }).start(() => {
+    Animated.parallel([
+      Animated.timing(calenderHeightAnimation, {
+        toValue: isCalenderOpen ? 1 : 320,
+        duration: 500,
+      }),
+      Animated.timing(rotateAnimation, {
+        toValue: isCalenderOpen ? 0 : 1,
+        duration: 500,
+      }),
+      Animated.timing(opacityAnimation, {
+        toValue: isCalenderOpen ? 1 : 0,
+        duration: 500,
+      }),
+      Animated.timing(weekDaysDataAnimation, {
+        toValue: isCalenderOpen ? 110 : 0,
+        duration: 500,
+      }),
+    ]).start(() => {
       setIsCalenderOpen(!isCalenderOpen);
     });
   };
@@ -61,21 +76,9 @@ export default function DayTimesMock() {
   const CalenderDaysView = () => {
     return [0, 1, 2, 3].map(renderWeek);
   };
-  const RotateData = animation.interpolate({
+  const RotateData = rotateAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: ['-90deg', '90deg'],
-  });
-  const CalenderHeightData = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 320],
-  });
-  const WeekDaysData = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [110, 0],
-  });
-  const OpacityAnimation = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 0],
   });
   return (
     <ScrollView style={styles.container}>
@@ -104,7 +107,7 @@ export default function DayTimesMock() {
           })}
         </View>
         <Animated.View
-          style={{height: WeekDaysData, opacity: OpacityAnimation}}>
+          style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
           <View>
             {renderWeek(2)}
             <View style={styles.weekNavigation}>
@@ -120,7 +123,7 @@ export default function DayTimesMock() {
         </Animated.View>
       </View>
       <Animated.View
-        style={[styles.calendarWrapper, {height: CalenderHeightData}]}>
+        style={[styles.calendarWrapper, {height: calenderHeightAnimation}]}>
         <View>
           <View style={styles.switchMonthView}>
             <View>
