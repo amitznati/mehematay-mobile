@@ -1,11 +1,34 @@
+const makeId = length => {
+  let result = '';
+  let characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
 export default class BaseApi {
-  constructor(store) {
+  constructor(store, APIsInstances) {
     this.store = store;
+    this.APIsInstances = APIsInstances;
   }
 
   dispatchStoreAction = action => {
     this.store.dispatch(action);
   };
+
+  spinnerAction = (isOn, options, spinnerId) => {
+    this.dispatchStoreAction({
+      type: 'SPINNER_ACTION',
+      payload: {isOn, options, spinnerId},
+    });
+  };
+  startSpinner = (spinnerId, options) =>
+    this.spinnerAction(true, options, spinnerId);
+  stopSpinner = (spinnerId, options) =>
+    this.spinnerAction(false, options, spinnerId);
 
   getServiceRequestType = type => `${type}_REQUEST`;
   getServiceSuccessType = type => `${type}_SUCCESS`;
@@ -31,11 +54,10 @@ export default class BaseApi {
       const serviceRequestResponse = await Promise.resolve(
         getSuccessPayload(res),
       );
-      actionType &&
-        this.dispatchStoreAction({
-          type: successType,
-          payload: serviceRequestResponse,
-        });
+      this.dispatchStoreAction({
+        type: successType,
+        payload: serviceRequestResponse,
+      });
       return serviceRequestResponse;
     } catch (err) {
       const serviceRequestErr = await Promise.resolve(getErrorPayload(err));

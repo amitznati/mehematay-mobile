@@ -2,6 +2,7 @@ import {createStore} from 'redux';
 import {combineReducers} from 'redux';
 import {composeWithDevTools} from 'redux-devtools-extension';
 import widgets from './widgets';
+import baseReducer from './baseReducer';
 
 let storeInstance;
 const createStoreInstance = () => {
@@ -9,6 +10,7 @@ const createStoreInstance = () => {
   widgets.forEach(widget => {
     reducerMap[widget.config.sliceName] = widget.reducer;
   });
+  reducerMap.general = baseReducer;
   return createStore(
     combineReducers(reducerMap),
     __DEV__ && composeWithDevTools(),
@@ -26,7 +28,7 @@ const createInstance = () => {
   const apis = {};
   widgets.forEach(widget => {
     const api = widget.api;
-    apis[widget.config.apiName] = new api(getStoreInstance());
+    apis[widget.config.apiName] = new api(getStoreInstance(), apis);
   });
   return apis;
 };

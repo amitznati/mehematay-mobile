@@ -2,12 +2,12 @@ import GetLocation from 'react-native-get-location';
 import moment from 'moment';
 import SimpleServices from '../../../sdk/services/SimpleServices';
 import BaseApi from '../../../sdk/BaseApi';
-import {getInstance} from '../../../sdk';
 import selectors from './DayTimesSelectors';
 export const ActionTypes = {
   LOAD_SUN_TIMES: 'LOAD_SUN_TIMES',
   SET_SELECTED_DATE: 'SET_SELECTED_DATE',
   SET_SELECTED_LOCATION: 'SET_SELECTED_LOCATION',
+  LOAD_CURRENT_LOCATION_TIMES_ERROR: 'LOAD_CURRENT_LOCATION_TIMES_ERROR',
 };
 
 const dayTimesTemplateObj = [
@@ -100,21 +100,31 @@ export default class DayTimesApi extends BaseApi {
   };
 
   loadSunTimesCurrentLocation = () => {
-    const searchLocationApi = getInstance().SearchLocationApi;
+    this.startSpinner('loadSunTimesCurrentLocation');
     GetLocation.getCurrentPosition({
       enableHighAccuracy: true,
       timeout: 15000,
     })
       .then(res => {
-        console.log(res);
-        searchLocationApi
-          .getCityLocationByCoords(res)
-          .then(this.onSelectLocation);
+        this.APIsInstances.SearchLocationApi.getCityLocationByCoords(res).then(
+          this.onSelectLocation,
+        );
       })
       .catch(error => {
         const {code, message} = error;
         console.warn(code, message);
+        this.dispatchStoreAction({
+          type: ActionTypes.LOAD_CURRENT_LOCATION_TIMES_ERROR,
+          payload: error,
+        });
       });
+    this.stopSpinner('loadSunTimesCurrentLocation');
+  };
+
+  getLoadCurrentLocationTimesErrorSelector = () => {
+    return selectors.getLoadCurrentLocationTimesErrorSelector(
+      this.store.getState(),
+    );
   };
 
   onDateChange = async selectedDate => {

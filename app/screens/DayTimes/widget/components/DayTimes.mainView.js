@@ -96,7 +96,13 @@ export default class DayTimesMainView extends React.Component {
   };
 
   render() {
-    const {dayTimes, selectedDate, onDateChange, selectedLocation} = this.props;
+    const {
+      dayTimes,
+      selectedDate,
+      onDateChange,
+      selectedLocation,
+      loadCurrentLocationTimesError,
+    } = this.props;
     const {searchLocationOpen} = this.state;
     return (
       <View style={styles.container}>
@@ -111,6 +117,12 @@ export default class DayTimesMainView extends React.Component {
             />
           </Layout>
         </Modal>
+        {loadCurrentLocationTimesError && (
+          <View>
+            <Text>loadCurrentLocationTimesError</Text>
+            <Text>{loadCurrentLocationTimesError}</Text>
+          </View>
+        )}
         <View style={styles.scrollView}>
           <Text style={styles.text}>{this.getHeDateString()}</Text>
           <Text style={styles.text}>

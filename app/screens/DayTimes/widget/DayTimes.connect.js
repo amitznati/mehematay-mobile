@@ -9,6 +9,7 @@ const mapStateToProps = () => {
     dayTimes: dayTimesApi.getDayTimesSelector(),
     selectedDate: dayTimesApi.getSelectedDateSelector(),
     selectedLocation: dayTimesApi.getSelectedLocationSelector(),
+    loadCurrentLocationTimesError: dayTimesApi.getLoadCurrentLocationTimesErrorSelector(),
   };
 };
 

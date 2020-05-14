@@ -5,13 +5,81 @@ import {
   View,
   Dimensions,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
 import {Text, Icon} from '@ui-kitten/components';
-import Svg, {Defs, Path, Use, G} from 'react-native-svg';
+import Svg, {Defs, Path, Use} from 'react-native-svg';
+import Hebcal from 'hebcal';
 
 const {width} = Dimensions.get('window');
 
-export default function DayTimesMock(props) {
+export default function DayTimesMock() {
+  const [isCalenderOpen, setIsCalenderOpen] = React.useState(false);
+  const [calenderHeightAnimation] = React.useState(new Animated.Value(1));
+  const [rotateAnimation] = React.useState(new Animated.Value(0));
+  const [opacityAnimation] = React.useState(new Animated.Value(1));
+  const [weekDaysDataAnimation] = React.useState(new Animated.Value(110));
+
+  const toggleCalender = () => {
+    Animated.parallel([
+      Animated.timing(calenderHeightAnimation, {
+        toValue: isCalenderOpen ? 1 : 320,
+        duration: 500,
+      }),
+      Animated.timing(rotateAnimation, {
+        toValue: isCalenderOpen ? 0 : 1,
+        duration: 500,
+      }),
+      Animated.timing(opacityAnimation, {
+        toValue: isCalenderOpen ? 1 : 0,
+        duration: 500,
+      }),
+      Animated.timing(weekDaysDataAnimation, {
+        toValue: isCalenderOpen ? 110 : 0,
+        duration: 500,
+      }),
+    ]).start(() => {
+      setIsCalenderOpen(!isCalenderOpen);
+    });
+  };
+
+  const month = new Hebcal().months[0];
+  const selectedDay = 15;
+  const renderDay = day => {
+    const selected = day === selectedDay;
+    const textStyle = styles.weekDaysDayTouchableText;
+    const event = [15, 16, 21].includes(day);
+    const eventStyle = selected
+      ? styles.weekDaysEventCircleSelected
+      : styles.weekDaysEventCircle;
+    return (
+      <TouchableOpacity key={day} style={styles.weekDaysDay}>
+        {selected && <View style={styles.weekDaysDayCircle} />}
+        {event && <View style={eventStyle} />}
+        <View style={styles.weekDaysDayTouchable}>
+          <Text style={textStyle}>{Hebcal.gematriya(day)}</Text>
+          <Text style={textStyle}>{day}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  const renderWeek = week => {
+    return (
+      <View key={`week-${week}`} style={styles.weekDays}>
+        {[0, 1, 2, 3, 4, 5, 6].map(day => {
+          const dayIndex = week * 7 + day;
+          return renderDay(month.days[dayIndex].day);
+        })}
+      </View>
+    );
+  };
+  const CalenderDaysView = () => {
+    return [0, 1, 2, 3].map(renderWeek);
+  };
+  const RotateData = rotateAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-90deg', '90deg'],
+  });
   return (
     <ScrollView style={styles.container}>
       <View style={styles.topWrapper}>
@@ -28,45 +96,74 @@ export default function DayTimesMock(props) {
             />
           </TouchableOpacity>
         </View>
-        <View style={styles.weekNavigation}>
-          <TouchableOpacity>
-            <Text style={styles.weekNavigationArrow}></Text>
-          </TouchableOpacity>
-          <Text style={styles.weekNavigationText}>יג-כ שבט תש"פ</Text>
-          <TouchableOpacity>
-            <Text style={styles.weekNavigationArrow}></Text>
-          </TouchableOpacity>
-        </View>
         <View style={styles.weekDays}>
           {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map(day => {
-            const selected = day === 'ב';
-            const textStyle = styles.weekDaysDayTouchableText;
-            const event = ['ב', 'ג'].includes(day);
-            const eventStyle = selected
-              ? styles.weekDaysEventCircleSelected
-              : styles.weekDaysEventCircle;
+            const key = `dayInWeek-${day}`;
             return (
-              <TouchableOpacity key={day} style={styles.weekDaysDay}>
-                <Text style={styles.weekDaysDayInWeekText}>{day}</Text>
-                {selected && <View style={styles.weekDaysDayCircle} />}
-                {event && <View style={eventStyle} />}
-                <View style={styles.weekDaysDayTouchable}>
-                  <Text style={textStyle}>יג</Text>
-                  <Text style={textStyle}>18</Text>
-                </View>
-              </TouchableOpacity>
+              <Text key={key} style={styles.weekDaysDayInWeekText}>
+                {day}
+              </Text>
             );
           })}
         </View>
+        <Animated.View
+          style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
+          <View>
+            {renderWeek(2)}
+            <View style={styles.weekNavigation}>
+              <TouchableOpacity>
+                <Text style={styles.weekNavigationArrow}></Text>
+              </TouchableOpacity>
+              <Text style={styles.weekNavigationText}>יג-כא שבט תש"פ</Text>
+              <TouchableOpacity>
+                <Text style={styles.weekNavigationArrow}></Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Animated.View>
       </View>
+      <Animated.View
+        style={[styles.calendarWrapper, {height: calenderHeightAnimation}]}>
+        <View>
+          <View style={styles.switchMonthView}>
+            <View>
+              <TouchableOpacity style={styles.switchMonthViewLeft}>
+                <Text style={styles.weekNavigationArrow}></Text>
+                <Text style={styles.switchMonthViewSideText}>תשע"ט</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.weekNavigationText}>תש"פ</Text>
+            <View>
+              <TouchableOpacity style={styles.switchMonthViewRight}>
+                <Text style={styles.switchMonthViewSideText}>תשפ"א</Text>
+                <Text style={styles.weekNavigationArrow}></Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.switchMonthView}>
+            <View>
+              <TouchableOpacity style={styles.switchMonthViewLeft}>
+                <Text style={styles.weekNavigationArrow}></Text>
+                <Text style={styles.switchMonthViewSideText}>טבט</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.weekNavigationText}>שבט</Text>
+            <View>
+              <TouchableOpacity style={styles.switchMonthViewRight}>
+                <Text style={styles.switchMonthViewSideText}>אדר</Text>
+                <Text style={styles.weekNavigationArrow}></Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <CalenderDaysView />
+        </View>
+      </Animated.View>
       <View style={styles.openCalenderButtonView}>
-        <TouchableOpacity style={styles.openCalenderButtonTouchable}>
+        <TouchableOpacity
+          style={styles.openCalenderButtonTouchable}
+          onPress={toggleCalender}>
           <View style={styles.openCalenderButtonSVG}>
-            <Svg
-              width={170.482}
-              height={39.122}
-              viewBox="0 0 170.482 39.122"
-              {...props}>
+            <Svg width={170} height={39.211} viewBox="0 0 170.482 39.122">
               <Defs>
                 <Path
                   id="prefix__b"
@@ -75,14 +172,24 @@ export default function DayTimesMock(props) {
                 />
               </Defs>
               <Use fill="#552022" xlinkHref="#prefix__b" />
-              <G>
-                <Path
-                  fill="#F3EDD0"
-                  fillRule="evenodd"
-                  d="M76.964 12.51c.071-.19.161-.372.269-.542a1.02 1.02 0 011.479-.151c.48.453.928.927 1.389 1.4l4.898 5.03c.025.026.057.053.115.105.07-.085.141-.17.211-.25 0 0 2.987-3.076 5.98-6.145a1.08 1.08 0 011.889.515c.057.31-.017.629-.204.878-.314.361-.653.7-.986 1.038-.5.52-.999 1.032-1.505 1.545l-1.633 1.676-1.656 1.7c-.48.493-.954.992-1.447 1.466a1.029 1.029 0 01-1.37 0c-.396-.381-.779-.782-1.168-1.176-.55-.559-1.095-1.124-1.64-1.683-.5-.513-.998-1.032-1.504-1.545l-1.626-1.68-1.169-1.2a1.532 1.532 0 01-.326-.624c.004-.128.004-.24.004-.358z"
-                />
-              </G>
             </Svg>
+            <Animated.View
+              style={{
+                position: 'absolute',
+                transform: [{rotate: RotateData}],
+                left: 80,
+                bottom: 10,
+              }}>
+              <Text
+                style={{
+                  fontFamily: 'FontAwesome5_Solid',
+                  fontSize: 18,
+                  lineHeight: 18,
+                  color: '#F3EDD0',
+                }}>
+                
+              </Text>
+            </Animated.View>
           </View>
         </TouchableOpacity>
       </View>
@@ -107,7 +214,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingTop: 24,
+    paddingTop: 16,
   },
   titleText: {
     fontFamily: 'Assistant-Light',
@@ -145,11 +252,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     fontSize: 30,
+    marginTop: 8,
   },
   weekNavigationArrow: {
     fontFamily: 'FontAwesome5_Solid',
     fontSize: 30,
-    fontWeight: 'normal',
     color: '#F3EDD0',
     lineHeight: 50,
   },
@@ -164,19 +271,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 6,
+    marginTop: 4,
   },
   weekDaysDay: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: 4,
   },
   weekDaysDayTouchable: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: 16,
+    //marginTop: 4,
   },
   weekDaysDayTouchableText: {
     fontFamily: 'Assistant-Light',
@@ -187,32 +295,78 @@ const styles = StyleSheet.create({
   weekDaysDayInWeekText: {
     fontFamily: 'Assistant-Regular',
     fontSize: 32,
-    lineHeight: 42,
+    lineHeight: 32,
     color: '#F3EDD0',
   },
   weekDaysDayCircle: {
-    height: 67,
-    width: 67,
+    height: 56,
+    width: 56,
     backgroundColor: '#F3EDD0',
     borderRadius: 50,
     position: 'absolute',
-    bottom: 0,
+    bottom: -8,
   },
   weekDaysEventCircle: {
-    height: 9,
-    width: 9,
+    height: 8,
+    width: 8,
     backgroundColor: '#F3EDD0',
     borderRadius: 50,
     position: 'absolute',
-    bottom: 8,
+    bottom: -4,
   },
   weekDaysEventCircleSelected: {
-    height: 9,
-    width: 9,
+    height: 8,
+    width: 8,
     backgroundColor: '#60292A',
     borderRadius: 50,
     position: 'absolute',
-    bottom: 10,
+    bottom: -4,
+  },
+  calendarWrapper: {
+    paddingHorizontal: 20,
+  },
+  switchMonthView: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  switchMonthViewLeft: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  switchMonthViewRight: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  switchMonthViewSideText: {
+    fontFamily: 'Assistant-Light',
+    color: '#706F6C',
+    fontSize: 18,
+    lineHeight: 20,
+    paddingHorizontal: 4,
+  },
+  calendarDaysView: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calendarDaysWeekRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 50,
+  },
+  calendarDaysDay: {
+    backgroundColor: '#F3EDD0',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
   },
   openCalenderButtonView: {
     display: 'flex',
@@ -228,7 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    height: 30,
+    height: 50,
     width: 70,
     borderRadius: 50,
   },
@@ -240,6 +394,5 @@ const styles = StyleSheet.create({
     width,
     backgroundColor: '#F3EDD0',
     //marginTop: 8,
-    zIndex: -1,
   },
 });
