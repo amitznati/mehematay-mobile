@@ -101,10 +101,7 @@ export default class DayTimesApi extends BaseApi {
 
   loadSunTimesCurrentLocation = () => {
     this.startSpinner('loadSunTimesCurrentLocation');
-    GetLocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-    })
+    GetLocation.getCurrentPosition()
       .then(res => {
         this.APIsInstances.SearchLocationApi.getCityLocationByCoords(res).then(
           this.onSelectLocation,

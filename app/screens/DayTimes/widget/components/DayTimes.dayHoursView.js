@@ -2,6 +2,7 @@ import React from 'react';
 import Timeline from 'react-native-timeline-flatlist';
 
 export default function DayHoursView({dayTimes = []}) {
+  console.log(dayTimes);
   return (
     <Timeline
       listViewContainerStyle={{paddingBottom: 40, paddingTop: 15}}

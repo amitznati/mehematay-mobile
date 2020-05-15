@@ -4,13 +4,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  NativeModules
 } from 'react-native';
 import {Text} from '@ui-kitten/components';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const {width} = Dimensions.get('window');
-
+const {StatusBarManager} = NativeModules;
 const MyHeader = ({navigation}) => {
   return (
     <View style={styles.headerWrap}>
@@ -43,7 +44,9 @@ export default function PageWrapper({Page, navigation}) {
       colors={['#8E3032', '#552022', '#552022', '#8E3032']}
       style={styles.container}>
       <MyHeader {...{navigation}} />
-      <Page {...{navigation}} />
+      <View style={styles.pageWrap}>
+        <Page {...{navigation}} />
+      </View>
     </LinearGradient>
   );
 }
@@ -54,6 +57,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width,
+    paddingTop: StatusBarManager.HEIGHT,
+    zIndex: -1,
   },
   headerWrap: {
     width,
@@ -67,6 +72,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     height: 70,
     paddingTop: 10,
+    //zIndex: 1,
   },
   headerTitleStyle: {
     fontFamily: 'drugulinclm-bold-webfont',
@@ -80,5 +86,9 @@ const styles = StyleSheet.create({
   linearGradient: {
     width,
     height: 5,
+    zIndex: 1,
+  },
+  pageWrap: {
+
   },
 });

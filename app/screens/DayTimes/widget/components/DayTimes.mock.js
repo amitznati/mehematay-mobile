@@ -10,8 +10,63 @@ import {
 import {Text, Icon} from '@ui-kitten/components';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
 import Hebcal from 'hebcal';
+import Timeline from 'react-native-timeline-flatlist';
 
 const {width} = Dimensions.get('window');
+
+const NextPrevNavigator = ({main, next, prev}) => {
+  const Side = ({side, mainValue, secondaryValue, clickAction}) => {
+    const isNext = side === 'next';
+    return (
+      <TouchableOpacity
+        onPress={clickAction}
+        style={styles.switchMonthViewSideWrap}>
+        {isNext && <Text style={styles.weekNavigationArrow}></Text>}
+        <View style={styles.switchMonthViewTextWrap}>
+          {mainValue && (
+            <Text style={styles.switchMonthViewSideText}>{mainValue}</Text>
+          )}
+          {secondaryValue && (
+            <Text
+              style={[
+                styles.switchMonthViewSideText,
+                styles.switchMonthViewSideTextSecondary,
+              ]}>
+              {secondaryValue}
+            </Text>
+          )}
+        </View>
+        {!isNext && <Text style={styles.weekNavigationArrow}></Text>}
+      </TouchableOpacity>
+    );
+  };
+
+  const MainValue = ({mainValue, secondaryValue, clickAction}) => {
+    return (
+      <TouchableOpacity
+        style={styles.switchMonthViewTextWrap}
+        onPress={clickAction}>
+        {mainValue && (
+          <Text style={styles.weekNavigationText}>{mainValue}</Text>
+        )}
+        {secondaryValue && (
+          <Text
+            style={[styles.weekNavigationText, styles.weekNavigationTextEn]}>
+            {secondaryValue}
+          </Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <View style={styles.switchMonthView}>
+      <Side {...next} side="next" />
+      <MainValue {...main} />
+      <Side {...prev} side="prev" />
+    </View>
+  );
+};
 
 export default function DayTimesMock() {
   const [isCalenderOpen, setIsCalenderOpen] = React.useState(false);
@@ -110,51 +165,41 @@ export default function DayTimesMock() {
           style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
           <View>
             {renderWeek(2)}
-            <View style={styles.weekNavigation}>
-              <TouchableOpacity>
-                <Text style={styles.weekNavigationArrow}></Text>
-              </TouchableOpacity>
-              <Text style={styles.weekNavigationText}>יג-כא שבט תש"פ</Text>
-              <TouchableOpacity>
-                <Text style={styles.weekNavigationArrow}></Text>
-              </TouchableOpacity>
-            </View>
+            <NextPrevNavigator main={{mainValue: 'יג-כא שבט תש"פ'}} />
           </View>
         </Animated.View>
       </View>
       <Animated.View
         style={[styles.calendarWrapper, {height: calenderHeightAnimation}]}>
         <View>
-          <View style={styles.switchMonthView}>
-            <View>
-              <TouchableOpacity style={styles.switchMonthViewLeft}>
-                <Text style={styles.weekNavigationArrow}></Text>
-                <Text style={styles.switchMonthViewSideText}>תשע"ט</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.weekNavigationText}>תש"פ</Text>
-            <View>
-              <TouchableOpacity style={styles.switchMonthViewRight}>
-                <Text style={styles.switchMonthViewSideText}>תשפ"א</Text>
-                <Text style={styles.weekNavigationArrow}></Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.switchMonthView}>
-            <View>
-              <TouchableOpacity style={styles.switchMonthViewLeft}>
-                <Text style={styles.weekNavigationArrow}></Text>
-                <Text style={styles.switchMonthViewSideText}>טבט</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.weekNavigationText}>שבט</Text>
-            <View>
-              <TouchableOpacity style={styles.switchMonthViewRight}>
-                <Text style={styles.switchMonthViewSideText}>אדר</Text>
-                <Text style={styles.weekNavigationArrow}></Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <NextPrevNavigator
+            main={{
+              mainValue: 'תש"פ',
+              secondaryValue: '2020',
+            }}
+            next={{
+              mainValue: 'תשפ"א',
+              secondaryValue: '2021',
+            }}
+            prev={{
+              mainValue: 'תשע"ט',
+              secondaryValue: '2019',
+            }}
+          />
+          <NextPrevNavigator
+            main={{
+              mainValue: 'שבט',
+              secondaryValue: 'April',
+            }}
+            next={{
+              mainValue: 'אדר',
+              secondaryValue: 'May',
+            }}
+            prev={{
+              mainValue: 'טבט',
+              secondaryValue: 'March',
+            }}
+          />
           <CalenderDaysView />
         </View>
       </Animated.View>
@@ -193,7 +238,107 @@ export default function DayTimesMock() {
           </View>
         </TouchableOpacity>
       </View>
-      <View style={styles.pageContent} />
+      <View style={styles.pageContent}>
+        <Timeline
+          listViewContainerStyle={{paddingBottom: 16}}
+          circleSize={20}
+          circleColor="#8E3032"
+          lineColor="#8E3032"
+          timeContainerStyle={{minWidth: 52}}
+          timeStyle={{
+            fontFamily: 'Assistant-Regular',
+            textAlign: 'center',
+            backgroundColor: '#8E3032',
+            color: '#F3EDD0',
+            padding: 5,
+            borderRadius: 13,
+          }}
+          titleStyle={{color: '#706F6C', fontFamily: 'Assistant-Bold'}}
+          descriptionStyle={{color: '#706F6C', fontFamily: 'Assistant-Light'}}
+          data={[
+            {
+              key: 'dayHour',
+              title: 'שעה זמנית הגר"א',
+              time: '01:08',
+              description: (
+                <TouchableOpacity>
+                  <Text
+                    style={{color: '#706F6C', fontFamily: 'Assistant-Light'}}>
+                    שעה זמנית לפי הגר"א מחושבת ע"י זמן זריחה עד זמן שקיעה לחלק ל
+                    12 שעות...
+                    <Text style={{color: '#3d61cd'}}>פרטים</Text>
+                  </Text>
+                </TouchableOpacity>
+              ),
+            },
+            {
+              key: 'alotHashahar90',
+              title: 'עלות השחר 90 דקות',
+              time: '04:01',
+            },
+            {
+              key: 'alotHashahar72',
+              title: 'עלות השחרת 72 דקות',
+              time: '04:21',
+            },
+            {
+              key: 'misheyakir',
+              title: 'זמן משיכיר',
+              time: '04:47',
+            },
+            {
+              key: 'sunrise',
+              title: 'זריחה (הנץ)',
+              time: '05:44',
+            },
+            {
+              key: 'sofZmanShma',
+              title: 'סוף זמן ק"ש',
+              time: '09:10',
+            },
+            {
+              key: 'sofZmanTfila',
+              title: 'סוף זמן תפילה',
+              time: '10:18',
+            },
+            {
+              key: 'hazot',
+              title: 'חצות היום והלילה',
+              time: '12:36',
+            },
+            {
+              key: 'minhaGdola',
+              title: 'מנחה גדולה',
+              time: '13:10',
+            },
+            {
+              key: 'minhaKtana',
+              title: 'מנחה קטנה',
+              time: '16:36',
+            },
+            {
+              key: 'plagMinha',
+              title: 'פלג מנחה',
+              time: '18:02',
+            },
+            {
+              key: 'sunset',
+              title: 'שקיעה',
+              time: '19:28',
+            },
+            {
+              key: 'tzetHakohavim',
+              title: 'צאת הכוכים',
+              time: '19:48',
+            },
+            {
+              key: 'tzetHakohavimRT',
+              title: 'צאת הכוכים ר"ת',
+              time: '20:50',
+            },
+          ]}
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -266,6 +411,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 30,
   },
+  weekNavigationTextEn: {
+    fontSize: 18,
+    lineHeight: 18,
+  },
   weekDays: {
     display: 'flex',
     flexDirection: 'row-reverse',
@@ -332,6 +481,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 8,
   },
+  switchMonthViewSideWrap: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   switchMonthViewLeft: {
     display: 'flex',
     flexDirection: 'row',
@@ -342,12 +496,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  switchMonthViewTextWrap: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   switchMonthViewSideText: {
     fontFamily: 'Assistant-Light',
     color: '#706F6C',
     fontSize: 18,
     lineHeight: 20,
     paddingHorizontal: 4,
+  },
+  switchMonthViewSideTextSecondary: {
+    fontSize: 14,
   },
   calendarDaysView: {
     display: 'flex',
@@ -390,9 +552,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   pageContent: {
-    height: 1000,
+    //height: 1000,
     width,
     backgroundColor: '#F3EDD0',
-    //marginTop: 8,
+    padding: 20,
   },
 });

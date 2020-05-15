@@ -117,12 +117,12 @@ export default class DayTimesMainView extends React.Component {
             />
           </Layout>
         </Modal>
-        {loadCurrentLocationTimesError && (
+        {loadCurrentLocationTimesError.length ? (
           <View>
             <Text>loadCurrentLocationTimesError</Text>
             <Text>{loadCurrentLocationTimesError}</Text>
           </View>
-        )}
+        ) : <View />}
         <View style={styles.scrollView}>
           <Text style={styles.text}>{this.getHeDateString()}</Text>
           <Text style={styles.text}>
