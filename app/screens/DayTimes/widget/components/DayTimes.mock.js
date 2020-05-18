@@ -10,10 +10,39 @@ import {
 import {Text, Icon} from '@ui-kitten/components';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
 import Hebcal from 'hebcal';
-import Timeline from 'react-native-timeline-flatlist';
+
+import {Calendar} from 'react-native-calendars';
+import {add} from 'react-native-reanimated';
 
 const {width} = Dimensions.get('window');
-
+const monthsArray = [
+  'Jan',
+  'Fab',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Auc',
+  'Nov',
+  'Dec',
+];
+const monthsArrayHe = [
+  'ניסן',
+  'אייר',
+  'סיון',
+  'תמוז',
+  'אב',
+  'אלול',
+  'תשרי',
+  'חשון',
+  'כסלו',
+  'טבט',
+  'שבט',
+  'אדר',
+];
 const NextPrevNavigator = ({main, next, prev}) => {
   const Side = ({side, mainValue, secondaryValue, clickAction}) => {
     const isNext = side === 'next';
@@ -68,17 +97,148 @@ const NextPrevNavigator = ({main, next, prev}) => {
   );
 };
 
+const getMonthAndYearNavigationProps = (
+  navigationDate,
+  navigateAction = () => {},
+) => {
+  const heDate = new Hebcal.HDate(
+    new Date(
+      navigationDate.getFullYear(),
+      navigationDate.getMonth() - 1,
+      navigationDate.getDate(),
+    ),
+  );
+  return {
+    month: {
+      next: {
+        mainValue: monthsArrayHe[(heDate.month + 1) % 11],
+        secondaryValue: monthsArray[(navigationDate.getMonth() + 1) % 11],
+        clickAction: () => navigateAction({type: 'month', side: 'next'}),
+      },
+      main: {
+        mainValue: monthsArrayHe[heDate.month],
+        secondaryValue: monthsArray[navigationDate.getMonth()],
+        clickAction: () => navigateAction({type: 'month', side: 'main'}),
+      },
+      prev: {
+        mainValue: monthsArrayHe[Math.abs(heDate.month - 1) % 11],
+        secondaryValue:
+          monthsArray[Math.abs(navigationDate.getMonth() - 1) % 11],
+        clickAction: () => navigateAction({type: 'month', side: 'prev'}),
+      },
+    },
+    year: {
+      next: {
+        mainValue: Hebcal.gematriya(heDate.year + 1),
+        secondaryValue: navigationDate.getFullYear() + 1,
+        clickAction: () => navigateAction({type: 'year', side: 'next'}),
+      },
+      main: {
+        mainValue: Hebcal.gematriya(heDate.year),
+        secondaryValue: navigationDate.getFullYear(),
+        clickAction: () => navigateAction({type: 'year', side: 'main'}),
+      },
+      prev: {
+        mainValue: Hebcal.gematriya(heDate.year - 1),
+        secondaryValue: navigationDate.getFullYear() - 1,
+        clickAction: () => navigateAction({type: 'year', side: 'main'}),
+      },
+    },
+  };
+};
+
+const getSelectedWeek = (navigationDate, selectedDay) => {
+  const sunday = new Date(navigationDate);
+  sunday.setDate(sunday.getDate() - navigationDate.getDay());
+  return [0, 1, 2, 3, 4, 5, 6].map(day => {
+    const selected =
+      day + sunday.getDate() === selectedDay.getDate() &&
+      sunday.getMonth() === selectedDay.getMonth() &&
+      sunday.getFullYear() === selectedDay.getFullYear();
+    return {
+      date: {
+        day: day + sunday.getDate(),
+        year: sunday.getFullYear(),
+        month: sunday.getMonth(),
+      },
+      selected,
+    };
+  });
+};
+
+const getWeekNavigationProps = (selectedWeek, navigateAction) => {
+  const fromDay = selectedWeek[0].date;
+  const toDay = selectedWeek[6].date;
+  const heFromDate = new Hebcal.HDate(
+    new Date(fromDay.year, fromDay.month - 1, fromDay.day),
+  );
+  const heToDate = new Hebcal.HDate(
+    new Date(toDay.year, toDay.month - 1, toDay.day),
+  );
+  const toDayHe = Hebcal.gematriya(heToDate.day);
+  const fromDayHe = Hebcal.gematriya(heFromDate.day);
+  const monthNameHe = monthsArrayHe[heFromDate.month];
+  const monthName = monthsArray[fromDay.month];
+  const yearHe = Hebcal.gematriya(heFromDate.year);
+  const year = fromDay.year;
+  const heStr = `${fromDayHe}-${toDayHe} ${monthNameHe} ${yearHe}`;
+  const enStr = `${year} ${monthName} ${toDay.day}-${fromDay.day}`;
+  return {
+    main: {
+      mainValue: heStr,
+      secondaryValue: enStr,
+    },
+    next: {
+      clickAction: () => navigateAction({type: 'week', side: 'next'}),
+    },
+    prev: {
+      clickAction: () => navigateAction({type: 'week', side: 'prev'}),
+    },
+  };
+};
+
+const renderDay = ({date, state, selected, onSelect = () => {}}) => {
+  if (!date) {
+    return null;
+  }
+  const thisDate = new Date(date.year, date.month, date.day);
+  const heDate = new Hebcal.HDate(
+    new Date(date.year, date.month - 1, date.day),
+  );
+  const day = date.day;
+  const textStyle = [styles.weekDaysDayTouchableText];
+  const event = [15, 16, 21, 18].includes(day);
+  const eventStyle = selected
+    ? styles.weekDaysEventCircleSelected
+    : styles.weekDaysEventCircle;
+  return (
+    <TouchableOpacity
+      onPress={() => onSelect(thisDate)}
+      key={day}
+      style={styles.weekDaysDay}>
+      {selected && <View style={styles.weekDaysDayCircle} />}
+      <View style={styles.weekDaysDayTouchable}>
+        <Text style={textStyle}>{Hebcal.gematriya(heDate.day)}</Text>
+        <Text style={textStyle}>{day}</Text>
+      </View>
+      {event && <View style={eventStyle} />}
+    </TouchableOpacity>
+  );
+};
+
 export default function DayTimesMock() {
   const [isCalenderOpen, setIsCalenderOpen] = React.useState(false);
   const [calenderHeightAnimation] = React.useState(new Animated.Value(1));
   const [rotateAnimation] = React.useState(new Animated.Value(0));
   const [opacityAnimation] = React.useState(new Animated.Value(1));
   const [weekDaysDataAnimation] = React.useState(new Animated.Value(110));
+  const [navigationDate, setNavigationDate] = React.useState(new Date());
+  const [selectedDate, setSelectedDate] = React.useState(new Date());
 
   const toggleCalender = () => {
     Animated.parallel([
       Animated.timing(calenderHeightAnimation, {
-        toValue: isCalenderOpen ? 1 : 320,
+        toValue: isCalenderOpen ? 1 : 450,
         duration: 500,
       }),
       Animated.timing(rotateAnimation, {
@@ -98,39 +258,46 @@ export default function DayTimesMock() {
     });
   };
 
-  const month = new Hebcal().months[0];
-  const selectedDay = 15;
-  const renderDay = day => {
-    const selected = day === selectedDay;
-    const textStyle = styles.weekDaysDayTouchableText;
-    const event = [15, 16, 21].includes(day);
-    const eventStyle = selected
-      ? styles.weekDaysEventCircleSelected
-      : styles.weekDaysEventCircle;
-    return (
-      <TouchableOpacity key={day} style={styles.weekDaysDay}>
-        {selected && <View style={styles.weekDaysDayCircle} />}
-        {event && <View style={eventStyle} />}
-        <View style={styles.weekDaysDayTouchable}>
-          <Text style={textStyle}>{Hebcal.gematriya(day)}</Text>
-          <Text style={textStyle}>{day}</Text>
-        </View>
-      </TouchableOpacity>
+  const navigateAction = ({type, side}) => {
+    let addYear = 0;
+    let addMonth = 0;
+    let addDays = 0;
+    const addToType = () => {
+      if (side === 'main') {
+        return 0;
+      }
+      return side === 'next' ? 1 : -1;
+    };
+    if (type === 'year') {
+      addYear = addToType();
+    } else if (type === 'month') {
+      addMonth = addToType();
+    } else if (type === 'week') {
+      addDays = addToType() * 7;
+    }
+    const newDate = new Date(
+      navigationDate.getFullYear() + addYear,
+      navigationDate.getMonth() + addMonth,
+      navigationDate.getDate() + addDays,
     );
+    setNavigationDate(newDate);
   };
+  const selectedWeek = getSelectedWeek(navigationDate, selectedDate);
+  const monthAndYearNavigationProps = getMonthAndYearNavigationProps(
+    navigationDate,
+    navigateAction,
+  );
+
   const renderWeek = week => {
     return (
       <View key={`week-${week}`} style={styles.weekDays}>
-        {[0, 1, 2, 3, 4, 5, 6].map(day => {
-          const dayIndex = week * 7 + day;
-          return renderDay(month.days[dayIndex].day);
-        })}
+        {selectedWeek.map(date =>
+          renderDay({...date, onSelect: setSelectedDate}),
+        )}
       </View>
     );
   };
-  const CalenderDaysView = () => {
-    return [0, 1, 2, 3].map(renderWeek);
-  };
+
   const RotateData = rotateAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: ['-90deg', '90deg'],
@@ -165,42 +332,90 @@ export default function DayTimesMock() {
           style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
           <View>
             {renderWeek(2)}
-            <NextPrevNavigator main={{mainValue: 'יג-כא שבט תש"פ'}} />
+            <NextPrevNavigator
+              {...getWeekNavigationProps(selectedWeek, navigateAction)}
+            />
           </View>
         </Animated.View>
       </View>
-      <Animated.View
-        style={[styles.calendarWrapper, {height: calenderHeightAnimation}]}>
+      <Animated.View style={{height: calenderHeightAnimation}}>
+        <View style={styles.calendarWrapper}>
+          <NextPrevNavigator {...monthAndYearNavigationProps.year} />
+          <NextPrevNavigator {...monthAndYearNavigationProps.month} />
+        </View>
         <View>
-          <NextPrevNavigator
-            main={{
-              mainValue: 'תש"פ',
-              secondaryValue: '2020',
+          <Calendar
+            current={navigationDate}
+            horizontal
+            pagingEnabled
+            hideArrows={true}
+            disableMonthChange={true}
+            hideDayNames={true}
+            headerStyle={{display: 'none'}}
+            hideExtraDays={true}
+            dayComponent={({date, state}) => {
+              const selected =
+                date.day === selectedDate.getDate() &&
+                date.month === selectedDate.getMonth() + 1 &&
+                `${date.year}` === `${selectedDate.getFullYear()}`;
+              const onSelect = () => {
+                setSelectedDate(new Date(date.year, date.month - 1, date.day));
+              };
+              return renderDay({
+                date,
+                state,
+                selected,
+                onSelect,
+              });
             }}
-            next={{
-              mainValue: 'תשפ"א',
-              secondaryValue: '2021',
+            style={{
+              borderWidth: 0,
+              height: 450,
+              padding: 0,
             }}
-            prev={{
-              mainValue: 'תשע"ט',
-              secondaryValue: '2019',
+            // Specify theme properties to override specific styles for calendar parts. Default = {}
+            theme={{
+              backgroundColor: 'rgba(255,255,255,0)',
+              calendarBackground: 'rgba(255,255,255,0)',
+              padding: 0,
+              'stylesheet.calendar.main': {
+                week: {
+                  marginTop: 7,
+                  marginBottom: 7,
+                  flexDirection: 'row-reverse',
+                  justifyContent: 'space-between',
+                  padding: 0,
+                },
+              },
+              // textSectionTitleColor: '#F3EDD0',
+              // selectedDayBackgroundColor: '#F3EDD0',
+              // selectedDayTextColor: '#8E3032',
+              // todayTextColor: '#00adf5',
+              // dayTextColor: '#F3EDD0',
+              // textDisabledColor: '#36393b',
+              // dotColor: '#00adf5',
+              // selectedDotColor: '#8E3032',
+              // arrowColor: 'orange',
+              // disabledArrowColor: '#d9e1e8',
+              // monthTextColor: 'blue',
+              // indicatorColor: 'blue',
+              // textDayFontFamily: 'monospace',
+              // textMonthFontFamily: 'monospace',
+              // textDayHeaderFontFamily: 'monospace',
+              // textDayFontWeight: '300',
+              // textMonthFontWeight: 'bold',
+              // textDayHeaderFontWeight: '300',
+              // textDayFontSize: 18,
+              // textMonthFontSize: 18,
+              // textDayHeaderFontSize: 18,
+            }}
+            markedDates={{
+              '2020-05-16': {selected: true, marked: true},
+              '2020-05-17': {marked: true},
+              '2020-05-18': {marked: true},
+              '2020-05-19': {disabled: true},
             }}
           />
-          <NextPrevNavigator
-            main={{
-              mainValue: 'שבט',
-              secondaryValue: 'April',
-            }}
-            next={{
-              mainValue: 'אדר',
-              secondaryValue: 'May',
-            }}
-            prev={{
-              mainValue: 'טבט',
-              secondaryValue: 'March',
-            }}
-          />
-          <CalenderDaysView />
         </View>
       </Animated.View>
       <View style={styles.openCalenderButtonView}>
@@ -238,107 +453,7 @@ export default function DayTimesMock() {
           </View>
         </TouchableOpacity>
       </View>
-      <View style={styles.pageContent}>
-        <Timeline
-          listViewContainerStyle={{paddingBottom: 16}}
-          circleSize={20}
-          circleColor="#8E3032"
-          lineColor="#8E3032"
-          timeContainerStyle={{minWidth: 52}}
-          timeStyle={{
-            fontFamily: 'Assistant-Regular',
-            textAlign: 'center',
-            backgroundColor: '#8E3032',
-            color: '#F3EDD0',
-            padding: 5,
-            borderRadius: 13,
-          }}
-          titleStyle={{color: '#706F6C', fontFamily: 'Assistant-Bold'}}
-          descriptionStyle={{color: '#706F6C', fontFamily: 'Assistant-Light'}}
-          data={[
-            {
-              key: 'dayHour',
-              title: 'שעה זמנית הגר"א',
-              time: '01:08',
-              description: (
-                <TouchableOpacity>
-                  <Text
-                    style={{color: '#706F6C', fontFamily: 'Assistant-Light'}}>
-                    שעה זמנית לפי הגר"א מחושבת ע"י זמן זריחה עד זמן שקיעה לחלק ל
-                    12 שעות...
-                    <Text style={{color: '#3d61cd'}}>פרטים</Text>
-                  </Text>
-                </TouchableOpacity>
-              ),
-            },
-            {
-              key: 'alotHashahar90',
-              title: 'עלות השחר 90 דקות',
-              time: '04:01',
-            },
-            {
-              key: 'alotHashahar72',
-              title: 'עלות השחרת 72 דקות',
-              time: '04:21',
-            },
-            {
-              key: 'misheyakir',
-              title: 'זמן משיכיר',
-              time: '04:47',
-            },
-            {
-              key: 'sunrise',
-              title: 'זריחה (הנץ)',
-              time: '05:44',
-            },
-            {
-              key: 'sofZmanShma',
-              title: 'סוף זמן ק"ש',
-              time: '09:10',
-            },
-            {
-              key: 'sofZmanTfila',
-              title: 'סוף זמן תפילה',
-              time: '10:18',
-            },
-            {
-              key: 'hazot',
-              title: 'חצות היום והלילה',
-              time: '12:36',
-            },
-            {
-              key: 'minhaGdola',
-              title: 'מנחה גדולה',
-              time: '13:10',
-            },
-            {
-              key: 'minhaKtana',
-              title: 'מנחה קטנה',
-              time: '16:36',
-            },
-            {
-              key: 'plagMinha',
-              title: 'פלג מנחה',
-              time: '18:02',
-            },
-            {
-              key: 'sunset',
-              title: 'שקיעה',
-              time: '19:28',
-            },
-            {
-              key: 'tzetHakohavim',
-              title: 'צאת הכוכים',
-              time: '19:48',
-            },
-            {
-              key: 'tzetHakohavimRT',
-              title: 'צאת הכוכים ר"ת',
-              time: '20:50',
-            },
-          ]}
-        />
-      </View>
+      <View style={styles.pageContent} />
     </ScrollView>
   );
 }
@@ -427,6 +542,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingBottom: 4,
   },
   weekDaysDayTouchable: {
@@ -552,7 +668,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   pageContent: {
-    //height: 1000,
+    height: 1000,
     width,
     backgroundColor: '#F3EDD0',
     padding: 20,

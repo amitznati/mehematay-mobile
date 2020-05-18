@@ -5,6 +5,7 @@ import {Drawer as UIKittenDrawer} from '@ui-kitten/components';
 import {DayTimes} from '../screens';
 import DayTimesMock from '../screens/DayTimes/widget/components/DayTimes.mock';
 import PageWrapper from './PageWrapper';
+import AgendaScreen from './../screens/AgendaScreen';
 
 const {width} = Dimensions.get('window');
 
@@ -28,7 +29,9 @@ const DayTimesPage = ({navigation}) => {
 const DayTimesMockPage = ({navigation}) => {
   return <PageWrapper navigation={navigation} Page={DayTimesMock} />;
 };
-
+const AgendaScreenPage = ({navigation}) => {
+  return <PageWrapper navigation={navigation} Page={AgendaScreen} />;
+};
 const Drawer = createDrawerNavigator();
 
 const DrawerContent = ({navigation, state}) => {
@@ -38,7 +41,12 @@ const DrawerContent = ({navigation, state}) => {
 
   return (
     <UIKittenDrawer
-      data={[{title: 'בית'}, {title: 'זמני היום'}, {title: 'זמני היום-mock'}]}
+      data={[
+        {title: 'בית'},
+        {title: 'זמני היום'},
+        {title: 'זמני היום-mock'},
+        {title: 'Agenda Screen'},
+      ]}
       selectedIndex={state.index}
       onSelect={onSelect}
     />
@@ -56,6 +64,11 @@ export default function RootNavigation() {
         key="dayTimesMock"
         name="dayTimesMock"
         component={DayTimesMockPage}
+      />
+      <Drawer.Screen
+        key="AgendaScreen"
+        name="AgendaScreen"
+        component={AgendaScreenPage}
       />
     </Drawer.Navigator>
   );

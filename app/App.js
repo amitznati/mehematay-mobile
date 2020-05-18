@@ -14,8 +14,8 @@ if (__DEV__) {
 export default function App() {
   return (
     <Provider store={store}>
-      <Spinner />
       <EntryPoint />
+      <Spinner />
     </Provider>
   );
 }

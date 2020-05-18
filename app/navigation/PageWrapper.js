@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  NativeModules
+  NativeModules,
 } from 'react-native';
 import {Text} from '@ui-kitten/components';
 import LinearGradient from 'react-native-linear-gradient';
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width,
-    paddingTop: StatusBarManager.HEIGHT,
+    paddingTop: (StatusBarManager && StatusBarManager.HEIGHT) || 24,
     zIndex: -1,
   },
   headerWrap: {
@@ -88,7 +88,5 @@ const styles = StyleSheet.create({
     height: 5,
     zIndex: 1,
   },
-  pageWrap: {
-
-  },
+  pageWrap: {},
 });

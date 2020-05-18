@@ -1,16 +1,15 @@
 import {connect} from 'react-redux';
 import React from 'react';
-import Spinner from 'react-native-loading-spinner-overlay';
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 function SpinnerWidget({spinnerOn, spinnerOptions}) {
+  if (!spinnerOn) {
+    return <View />;
+  }
   return (
-    <Spinner
-      {...{
-        visible: spinnerOn,
-        textStyle: {color: '#FFF', fontSize: 24},
-        ...spinnerOptions,
-      }}
-    />
+    <View style={styles.container}>
+      <ActivityIndicator size="large" color="#F3EDD0" />
+    </View>
   );
 }
 const mapStateToProps = store => {
@@ -19,5 +18,19 @@ const mapStateToProps = store => {
     spinnerOptions: store.general.spinnerOptions,
   };
 };
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(206,206,206,0.47)',
+  },
+  horizontal: {},
+});
 
 export default connect(mapStateToProps)(SpinnerWidget);
