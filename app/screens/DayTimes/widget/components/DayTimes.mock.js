@@ -296,16 +296,6 @@ export default function DayTimesMock() {
     navigateAction,
   );
 
-  const renderWeek = () => {
-    return (
-      <View style={styles.weekDays}>
-        {selectedWeek.map(date =>
-          renderDay({...date, onSelect: setSelectedDate}),
-        )}
-      </View>
-    );
-  };
-
   const RotateData = rotateAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: ['-90deg', '90deg'],
@@ -328,9 +318,8 @@ export default function DayTimesMock() {
         </View>
         <View style={styles.weekDays}>
           {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map(day => {
-            const key = `dayInWeek-${day}`;
             return (
-              <Text key={key} style={styles.weekDaysDayInWeekText}>
+              <Text key={day} style={styles.weekDaysDayInWeekText}>
                 {day}
               </Text>
             );
@@ -339,7 +328,11 @@ export default function DayTimesMock() {
         <Animated.View
           style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
           <View>
-            {renderWeek()}
+            <View style={styles.weekDays}>
+              {selectedWeek.map(date =>
+                renderDay({...date, onSelect: setSelectedDate}),
+              )}
+            </View>
             <NextPrevNavigator
               {...getWeekNavigationProps(selectedWeek, navigateAction)}
             />
@@ -369,9 +362,9 @@ export default function DayTimesMock() {
               const onSelect = selectedDate => {
                 onSelectDate(
                   new Date(
-                    selectedDate.year,
-                    selectedDate.month - 1,
-                    selectedDate.day,
+                    selectedDate.getFullYear(),
+                    selectedDate.getMonth() - 1,
+                    selectedDate.getDate(),
                   ),
                 );
               };
