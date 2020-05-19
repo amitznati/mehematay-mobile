@@ -258,6 +258,14 @@ export default function DayTimesMock() {
     });
   };
 
+  const onSelectDate = date => {
+    setSelectedDate(date);
+    setNavigationDate(date);
+    if (isCalenderOpen) {
+      toggleCalender();
+    }
+  };
+
   const navigateAction = ({type, side}) => {
     let addYear = 0;
     let addMonth = 0;
@@ -288,9 +296,9 @@ export default function DayTimesMock() {
     navigateAction,
   );
 
-  const renderWeek = week => {
+  const renderWeek = () => {
     return (
-      <View key={`week-${week}`} style={styles.weekDays}>
+      <View style={styles.weekDays}>
         {selectedWeek.map(date =>
           renderDay({...date, onSelect: setSelectedDate}),
         )}
@@ -331,7 +339,7 @@ export default function DayTimesMock() {
         <Animated.View
           style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
           <View>
-            {renderWeek(2)}
+            {renderWeek()}
             <NextPrevNavigator
               {...getWeekNavigationProps(selectedWeek, navigateAction)}
             />
@@ -358,8 +366,14 @@ export default function DayTimesMock() {
                 date.day === selectedDate.getDate() &&
                 date.month === selectedDate.getMonth() + 1 &&
                 `${date.year}` === `${selectedDate.getFullYear()}`;
-              const onSelect = () => {
-                setSelectedDate(new Date(date.year, date.month - 1, date.day));
+              const onSelect = selectedDate => {
+                onSelectDate(
+                  new Date(
+                    selectedDate.year,
+                    selectedDate.month - 1,
+                    selectedDate.day,
+                  ),
+                );
               };
               return renderDay({
                 date,
