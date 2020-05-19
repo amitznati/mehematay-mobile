@@ -104,26 +104,35 @@ const getMonthAndYearNavigationProps = (
   const heDate = new Hebcal.HDate(
     new Date(
       navigationDate.getFullYear(),
-      navigationDate.getMonth() - 1,
+      navigationDate.getMonth(),
       navigationDate.getDate(),
     ),
   );
+  console.log(navigationDate.getMonth());
+  console.log(heDate);
   return {
     month: {
       next: {
-        mainValue: monthsArrayHe[(heDate.month + 1) % 11],
-        secondaryValue: monthsArray[(navigationDate.getMonth() + 1) % 11],
+        mainValue: monthsArrayHe[heDate.month === 12 ? 0 : heDate.month],
+        secondaryValue:
+          monthsArray[
+            navigationDate.getMonth() + 1 === 12
+              ? 0
+              : navigationDate.getMonth() + 1
+          ],
         clickAction: () => navigateAction({type: 'month', side: 'next'}),
       },
       main: {
-        mainValue: monthsArrayHe[heDate.month],
+        mainValue: monthsArrayHe[heDate.month - 1],
         secondaryValue: monthsArray[navigationDate.getMonth()],
         clickAction: () => navigateAction({type: 'month', side: 'main'}),
       },
       prev: {
-        mainValue: monthsArrayHe[Math.abs(heDate.month - 1) % 11],
+        mainValue: monthsArrayHe[heDate.month === 1 ? 11 : heDate.month - 2],
         secondaryValue:
-          monthsArray[Math.abs(navigationDate.getMonth() - 1) % 11],
+          monthsArray[
+            navigationDate.getMonth() === 0 ? 11 : navigationDate.getMonth() - 1
+          ],
         clickAction: () => navigateAction({type: 'month', side: 'prev'}),
       },
     },
@@ -141,7 +150,7 @@ const getMonthAndYearNavigationProps = (
       prev: {
         mainValue: Hebcal.gematriya(heDate.year - 1),
         secondaryValue: navigationDate.getFullYear() - 1,
-        clickAction: () => navigateAction({type: 'year', side: 'main'}),
+        clickAction: () => navigateAction({type: 'year', side: 'prev'}),
       },
     },
   };
@@ -151,15 +160,17 @@ const getSelectedWeek = (navigationDate, selectedDay) => {
   const sunday = new Date(navigationDate);
   sunday.setDate(sunday.getDate() - navigationDate.getDay());
   return [0, 1, 2, 3, 4, 5, 6].map(day => {
+    const next = new Date(sunday);
+    next.setDate(sunday.getDate() + day);
     const selected =
-      day + sunday.getDate() === selectedDay.getDate() &&
-      sunday.getMonth() === selectedDay.getMonth() &&
-      sunday.getFullYear() === selectedDay.getFullYear();
+      next.getDate() === selectedDay.getDate() &&
+      next.getMonth() === selectedDay.getMonth() &&
+      next.getFullYear() === selectedDay.getFullYear();
     return {
       date: {
-        day: day + sunday.getDate(),
-        year: sunday.getFullYear(),
-        month: sunday.getMonth(),
+        day: next.getDate(),
+        year: next.getFullYear(),
+        month: next.getMonth(),
       },
       selected,
     };
