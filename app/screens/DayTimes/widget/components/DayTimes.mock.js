@@ -181,15 +181,15 @@ const getWeekNavigationProps = (selectedWeek, navigateAction) => {
   const fromDay = selectedWeek[0].date;
   const toDay = selectedWeek[6].date;
   const heFromDate = new Hebcal.HDate(
-    new Date(fromDay.year, fromDay.month - 1, fromDay.day),
+    new Date(fromDay.year, fromDay.month, fromDay.day),
   );
   const heToDate = new Hebcal.HDate(
-    new Date(toDay.year, toDay.month - 1, toDay.day),
+    new Date(toDay.year, toDay.month, toDay.day),
   );
   const toDayHe = Hebcal.gematriya(heToDate.day);
   const fromDayHe = Hebcal.gematriya(heFromDate.day);
-  const monthNameHe = monthsArrayHe[heFromDate.month];
-  const monthName = monthsArray[fromDay.month];
+  const monthNameHe = monthsArrayHe[heFromDate.month - 1];
+  const monthName = monthsArray[toDay.month];
   const yearHe = Hebcal.gematriya(heFromDate.year);
   const year = fromDay.year;
   const heStr = `${fromDayHe}-${toDayHe} ${monthNameHe} ${yearHe}`;
@@ -214,7 +214,7 @@ const renderDay = ({date, state, selected, onSelect = () => {}}) => {
   }
   const thisDate = new Date(date.year, date.month, date.day);
   const heDate = new Hebcal.HDate(
-    new Date(date.year, date.month - 1, date.day),
+    new Date(date.year, date.month, date.day),
   );
   const day = date.day;
   const textStyle = [styles.weekDaysDayTouchableText];
@@ -278,9 +278,7 @@ export default function DayTimesMock() {
   };
 
   const navigateAction = ({type, side}) => {
-    let addYear = 0;
-    let addMonth = 0;
-    let addDays = 0;
+    const newDate = new Date(navigationDate);
     const addToType = () => {
       if (side === 'main') {
         return 0;
@@ -288,17 +286,12 @@ export default function DayTimesMock() {
       return side === 'next' ? 1 : -1;
     };
     if (type === 'year') {
-      addYear = addToType();
+      newDate.setFullYear(newDate.getFullYear() + addToType());
     } else if (type === 'month') {
-      addMonth = addToType();
+      newDate.setMonth(newDate.getMonth() + addToType());
     } else if (type === 'week') {
-      addDays = addToType() * 7;
+      newDate.setDate(newDate.getDate() + addToType() * 7);
     }
-    const newDate = new Date(
-      navigationDate.getFullYear() + addYear,
-      navigationDate.getMonth() + addMonth,
-      navigationDate.getDate() + addDays,
-    );
     setNavigationDate(newDate);
   };
   const selectedWeek = getSelectedWeek(navigationDate, selectedDate);
@@ -364,7 +357,7 @@ export default function DayTimesMock() {
             disableMonthChange={true}
             hideDayNames={true}
             headerStyle={{display: 'none'}}
-            hideExtraDays={true}
+            //hideExtraDays={true}
             dayComponent={({date, state}) => {
               const selected =
                 date.day === selectedDate.getDate() &&
