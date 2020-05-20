@@ -45,11 +45,19 @@ export const getLoadCurrentLocationTimesErrorSelector = createSelector(
   },
 );
 
+export const getNavigationDateSelector = createSelector(
+  sliceSelector,
+  slice => {
+    return slice.navigationDate;
+  },
+);
+
 export default {
   getDayTimesSelector,
   getSelectedDateSelector,
   getSelectedCoordsSelector,
   getSeLocationNameSelector,
   getSelectedLocationSelector,
-  getLoadCurrentLocationTimesErrorSelector
+  getLoadCurrentLocationTimesErrorSelector,
+  getNavigationDateSelector,
 };

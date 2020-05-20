@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {ActivityIndicator, StyleSheet, View} from 'react-native';
 
 function SpinnerWidget({spinnerOn, spinnerOptions}) {
   if (!spinnerOn) {

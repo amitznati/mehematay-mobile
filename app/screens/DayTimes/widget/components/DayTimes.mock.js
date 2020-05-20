@@ -12,7 +12,6 @@ import Svg, {Defs, Path, Use} from 'react-native-svg';
 import Hebcal from 'hebcal';
 
 import {Calendar} from 'react-native-calendars';
-import {add} from 'react-native-reanimated';
 
 const {width} = Dimensions.get('window');
 const monthsArray = [
@@ -108,8 +107,6 @@ const getMonthAndYearNavigationProps = (
       navigationDate.getDate(),
     ),
   );
-  console.log(navigationDate.getMonth());
-  console.log(heDate);
   return {
     month: {
       next: {
@@ -170,7 +167,7 @@ const getSelectedWeek = (navigationDate, selectedDay) => {
       date: {
         day: next.getDate(),
         year: next.getFullYear(),
-        month: next.getMonth(),
+        month: next.getMonth() + 1,
       },
       selected,
     };
@@ -188,7 +185,7 @@ const getWeekNavigationProps = (selectedWeek, navigateAction) => {
   );
   const toDayHe = Hebcal.gematriya(heToDate.day);
   const fromDayHe = Hebcal.gematriya(heFromDate.day);
-  const monthNameHe = monthsArrayHe[heFromDate.month - 1];
+  const monthNameHe = monthsArrayHe[heToDate.month - 1];
   const monthName = monthsArray[toDay.month];
   const yearHe = Hebcal.gematriya(heFromDate.year);
   const year = fromDay.year;
@@ -208,16 +205,34 @@ const getWeekNavigationProps = (selectedWeek, navigateAction) => {
   };
 };
 
-const renderDay = ({date, state, selected, onSelect = () => {}}) => {
+const renderDay = ({
+  date,
+  state,
+  selected,
+  onSelect = () => {},
+  fromCalender = false,
+}) => {
   if (!date) {
     return null;
   }
+  const isToday = someDate => {
+    const today = new Date();
+    return (
+      someDate.getDate() === today.getDate() &&
+      someDate.getMonth() === today.getMonth() &&
+      someDate.getFullYear() === today.getFullYear()
+    );
+  };
   const thisDate = new Date(date.year, date.month, date.day);
-  const heDate = new Hebcal.HDate(
-    new Date(date.year, date.month, date.day),
-  );
+
+  const heDate = new Hebcal.HDate(thisDate);
   const day = date.day;
-  const textStyle = [styles.weekDaysDayTouchableText];
+  const disabled = state === 'disabled';
+  const textStyle = [
+    styles.weekDaysDayTouchableText,
+    disabled ? styles.weekDaysDayTouchableTextDisabled : {},
+    isToday(thisDate) ? styles.weekDaysDayTouchableTextTodayText : {},
+  ];
   const event = [15, 16, 21, 18].includes(day);
   const eventStyle = selected
     ? styles.weekDaysEventCircleSelected
@@ -357,7 +372,7 @@ export default function DayTimesMock() {
             disableMonthChange={true}
             hideDayNames={true}
             headerStyle={{display: 'none'}}
-            //hideExtraDays={true}
+            hideExtraDays={true}
             dayComponent={({date, state}) => {
               const selected =
                 date.day === selectedDate.getDate() &&
@@ -377,6 +392,7 @@ export default function DayTimesMock() {
                 state,
                 selected,
                 onSelect,
+                fromCalender: true,
               });
             }}
             style={{
@@ -398,27 +414,6 @@ export default function DayTimesMock() {
                   padding: 0,
                 },
               },
-              // textSectionTitleColor: '#F3EDD0',
-              // selectedDayBackgroundColor: '#F3EDD0',
-              // selectedDayTextColor: '#8E3032',
-              // todayTextColor: '#00adf5',
-              // dayTextColor: '#F3EDD0',
-              // textDisabledColor: '#36393b',
-              // dotColor: '#00adf5',
-              // selectedDotColor: '#8E3032',
-              // arrowColor: 'orange',
-              // disabledArrowColor: '#d9e1e8',
-              // monthTextColor: 'blue',
-              // indicatorColor: 'blue',
-              // textDayFontFamily: 'monospace',
-              // textMonthFontFamily: 'monospace',
-              // textDayHeaderFontFamily: 'monospace',
-              // textDayFontWeight: '300',
-              // textMonthFontWeight: 'bold',
-              // textDayHeaderFontWeight: '300',
-              // textDayFontSize: 18,
-              // textMonthFontSize: 18,
-              // textDayHeaderFontSize: 18,
             }}
             markedDates={{
               '2020-05-16': {selected: true, marked: true},
@@ -567,6 +562,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 18,
     color: '#706F6C',
+  },
+  weekDaysDayTouchableTextTodayText: {
+    color: '#234bc4',
+  },
+  weekDaysDayTouchableTextDisabled: {
+    color: '#504f4e',
   },
   weekDaysDayInWeekText: {
     fontFamily: 'Assistant-Regular',

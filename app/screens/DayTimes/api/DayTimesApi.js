@@ -8,6 +8,7 @@ export const ActionTypes = {
   SET_SELECTED_DATE: 'SET_SELECTED_DATE',
   SET_SELECTED_LOCATION: 'SET_SELECTED_LOCATION',
   LOAD_CURRENT_LOCATION_TIMES_ERROR: 'LOAD_CURRENT_LOCATION_TIMES_ERROR',
+  SET_NAVIGATION_DATE: 'SET_NAVIGATION_DATE',
 };
 
 const dayTimesTemplateObj = [
@@ -32,7 +33,7 @@ export default class DayTimesApi extends BaseApi {
   };
 
   loadSunTimes = async (coords, date = this.getSelectedDateSelector()) => {
-    this.serviceRequest(
+    await this.serviceRequest(
       SimpleServices.loadSunTimes,
       {
         config: {
@@ -96,16 +97,17 @@ export default class DayTimesApi extends BaseApi {
 
   onSelectLocation = async location => {
     this.setSelectedLocation(location);
-    this.loadSunTimes(location.coords);
+    await this.loadSunTimes(location.coords);
   };
 
-  loadSunTimesCurrentLocation = () => {
+  loadSunTimesCurrentLocation = async () => {
     this.startSpinner('loadSunTimesCurrentLocation');
-    GetLocation.getCurrentPosition()
+    GetLocation.getCurrentPosition({timeout: 1500})
       .then(res => {
         this.APIsInstances.SearchLocationApi.getCityLocationByCoords(res).then(
           this.onSelectLocation,
         );
+        this.stopSpinner('loadSunTimesCurrentLocation');
       })
       .catch(error => {
         const {code, message} = error;
@@ -114,8 +116,8 @@ export default class DayTimesApi extends BaseApi {
           type: ActionTypes.LOAD_CURRENT_LOCATION_TIMES_ERROR,
           payload: error,
         });
+        this.stopSpinner('loadSunTimesCurrentLocation');
       });
-    this.stopSpinner('loadSunTimesCurrentLocation');
   };
 
   getLoadCurrentLocationTimesErrorSelector = () => {
@@ -125,14 +127,24 @@ export default class DayTimesApi extends BaseApi {
   };
 
   onDateChange = async selectedDate => {
-    this.setSelectedData(selectedDate);
-    this.loadSunTimes(undefined, selectedDate);
+    this.setSelectedDate(selectedDate);
+    const location = this.getSelectedLocationSelector();
+    if (location && location.coords) {
+      await this.loadSunTimes(location.coords, selectedDate);
+    }
   };
 
-  setSelectedData = selectedDate => {
+  setSelectedDate = selectedDate => {
     this.dispatchStoreAction({
       type: ActionTypes.SET_SELECTED_DATE,
       payload: selectedDate,
+    });
+  };
+
+  setNavigationDate = navigationDate => {
+    this.dispatchStoreAction({
+      type: ActionTypes.SET_NAVIGATION_DATE,
+      payload: navigationDate,
     });
   };
 
@@ -145,6 +157,10 @@ export default class DayTimesApi extends BaseApi {
 
   getSelectedDateSelector = () => {
     return selectors.getSelectedDateSelector(this.store.getState());
+  };
+
+  getNavigationDateSelector = () => {
+    return selectors.getNavigationDateSelector(this.store.getState());
   };
 
   getSelectedLocationSelector = () => {

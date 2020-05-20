@@ -1,9 +1,12 @@
 import {ActionTypes} from './DayTimesApi';
+const navigationDate = new Date();
+navigationDate.setHours(6);
 const initialState = {
   selectedDate: new Date(),
   dayTimes: [],
   locationName: '',
   loadCurrentLocationTimesError: '',
+  navigationDate,
 };
 const SUCCESS = '_SUCCESS';
 const reducer = (state = initialState, action) => {
@@ -37,6 +40,13 @@ const reducer = (state = initialState, action) => {
       newState = {
         ...state,
         loadCurrentLocationTimesError: `code: ${code}, message: ${message}`,
+      };
+      break;
+    case ActionTypes.SET_NAVIGATION_DATE:
+      newState = {
+        ...state,
+        navigationDate: payload,
+        loadCurrentLocationTimesError: '',
       };
       break;
     default:

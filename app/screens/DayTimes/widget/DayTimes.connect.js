@@ -10,6 +10,7 @@ const mapStateToProps = () => {
     selectedDate: dayTimesApi.getSelectedDateSelector(),
     selectedLocation: dayTimesApi.getSelectedLocationSelector(),
     loadCurrentLocationTimesError: dayTimesApi.getLoadCurrentLocationTimesErrorSelector(),
+    navigationDate: dayTimesApi.getNavigationDateSelector(),
   };
 };
 
@@ -17,6 +18,8 @@ const mapDispatchToProps = () => ({
   loadSunTimesCurrentLocation: dayTimesApi.loadSunTimesCurrentLocation,
   onDateChange: dayTimesApi.onDateChange,
   onSelectLocation: dayTimesApi.onSelectLocation,
+  setSelectedDate: dayTimesApi.onDateChange,
+  setNavigationDate: dayTimesApi.setNavigationDate,
 });
 
 export default connect(
