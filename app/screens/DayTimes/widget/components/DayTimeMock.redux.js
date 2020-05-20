@@ -17,23 +17,9 @@ export default class DayTimesMockRedux extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isCalenderOpen: false,
       searchLocationOpen: false,
     };
   }
-  onSelectDate = date => {
-    const {isCalenderOpen} = this.state;
-    const {onSelectDate: parentOnSelectDate} = this.props;
-    parentOnSelectDate(date);
-    if (isCalenderOpen) {
-      this.toggleCalender();
-    }
-  };
-
-  toggleCalender = () => {
-    const {isCalenderOpen} = this.state;
-    this.setState({isCalenderOpen: !isCalenderOpen});
-  };
 
   onSelectLocation = location => {
     const {onSelectLocation: parentOnSelectLocation} = this.props;
@@ -46,8 +32,7 @@ export default class DayTimesMockRedux extends React.Component {
   };
 
   render() {
-    const {toggleCalender, onSelectDate} = this;
-    const {isCalenderOpen, searchLocationOpen} = this.state;
+    const {searchLocationOpen} = this.state;
     const {
       selectedDate,
       navigationDate,
@@ -56,6 +41,8 @@ export default class DayTimesMockRedux extends React.Component {
       monthAndYearNavigationProps,
       loadCurrentLocationTimesError,
       dayTimes,
+      onSelectDate,
+      selectedLocation,
     } = this.props;
     return (
       <ScrollView style={styles.container}>
@@ -79,7 +66,9 @@ export default class DayTimesMockRedux extends React.Component {
               style={styles.locationButtonTouchable}
               onPress={() => this.setState({searchLocationOpen: true})}>
               <Text style={styles.locationButtonText}>
-                {loadCurrentLocationTimesError || 'דימונה'}
+                {loadCurrentLocationTimesError ||
+                  (selectedLocation && selectedLocation.formattedName) ||
+                  'no location'}
               </Text>
               <Icon
                 style={styles.locationButtonIcon}
@@ -97,8 +86,6 @@ export default class DayTimesMockRedux extends React.Component {
             monthAndYearNavigationProps,
             navigationDate,
             selectedDate,
-            isCalenderOpen,
-            toggleCalender,
           }}
         />
         <View style={styles.pageContent}>

@@ -14,14 +14,8 @@ export default class Calender extends React.Component {
       calenderHeightAnimation: new Animated.Value(1),
       rotateAnimation: new Animated.Value(0),
       opacityAnimation: new Animated.Value(1),
-      weekDaysDataAnimation: new Animated.Value(110),
+      weekDaysDataAnimation: new Animated.Value(150),
     };
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.isCalenderOpen !== this.props.isCalenderOpen) {
-      this.toggleCalender();
-    }
   }
 
   toggleCalender = () => {
@@ -30,11 +24,11 @@ export default class Calender extends React.Component {
       rotateAnimation,
       opacityAnimation,
       weekDaysDataAnimation,
+      isCalenderOpen,
     } = this.state;
-    const {isCalenderOpen} = this.props;
     Animated.parallel([
       Animated.timing(calenderHeightAnimation, {
-        toValue: isCalenderOpen ? 1 : 450,
+        toValue: isCalenderOpen ? 1 : 500,
         duration: 500,
       }),
       Animated.timing(rotateAnimation, {
@@ -46,10 +40,12 @@ export default class Calender extends React.Component {
         duration: 500,
       }),
       Animated.timing(weekDaysDataAnimation, {
-        toValue: isCalenderOpen ? 110 : 0,
+        toValue: isCalenderOpen ? 150 : 0,
         duration: 500,
       }),
-    ]).start();
+    ]).start(() => {
+      this.setState({isCalenderOpen: !isCalenderOpen});
+    });
   };
 
   DaysNames = () => {
@@ -86,8 +82,6 @@ export default class Calender extends React.Component {
       monthAndYearNavigationProps,
       navigationDate,
       selectedDate,
-      isCalenderOpen,
-      toggleCalender,
     } = this.props;
     const {
       rotateAnimation,
@@ -103,10 +97,10 @@ export default class Calender extends React.Component {
     return (
       <View>
         <View style={styles.topWrapper}>
-          <DaysNames />
           <Animated.View
             style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
             <View>
+              <DaysNames />
               <WeekDays />
               <NextPrevNavigator {...weekNavigationProps} />
             </View>
@@ -116,6 +110,7 @@ export default class Calender extends React.Component {
           <View style={styles.calendarWrapper}>
             <NextPrevNavigator {...monthAndYearNavigationProps.year} />
             <NextPrevNavigator {...monthAndYearNavigationProps.month} />
+            <DaysNames />
           </View>
           <View>
             <Calendar
@@ -138,7 +133,10 @@ export default class Calender extends React.Component {
                       date,
                       state,
                       selected,
-                      onSelect: onSelectDate,
+                      onSelect: date => {
+                        this.toggleCalender();
+                        onSelectDate(date);
+                      },
                       fromCalender: true,
                     }}
                   />
@@ -167,7 +165,7 @@ export default class Calender extends React.Component {
         <View style={styles.openCalenderButtonView}>
           <TouchableOpacity
             style={styles.openCalenderButtonTouchable}
-            onPress={toggleCalender}>
+            onPress={this.toggleCalender}>
             <View style={styles.openCalenderButtonSVG}>
               <Svg width={170} height={39.211} viewBox="0 0 170.482 39.122">
                 <Defs>
