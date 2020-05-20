@@ -6,10 +6,12 @@ import CalenderDay from './Day';
 import {Text} from '@ui-kitten/components';
 import DayTimesDay from '../../screens/DayTimes/widget/components/DayTimes.Day';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
+import CalenderPropsMapper from './Calender.propsMepper';
 
 export default class Calender extends React.Component {
   constructor(props) {
     super(props);
+    this.propsMepper = new CalenderPropsMapper(props);
     this.state = {
       calenderHeightAnimation: new Animated.Value(1),
       rotateAnimation: new Animated.Value(0),
@@ -62,8 +64,8 @@ export default class Calender extends React.Component {
     );
   };
 
-  WeekDays = () => {
-    const {selectedWeek, onSelectDate} = this.props;
+  WeekDays = ({selectedWeek}) => {
+    const {onSelectDate} = this.propsMepper;
     return (
       <View style={styles.weekDays}>
         {selectedWeek.map(date => {
@@ -82,7 +84,8 @@ export default class Calender extends React.Component {
       monthAndYearNavigationProps,
       navigationDate,
       selectedDate,
-    } = this.props;
+      selectedWeek,
+    } = this.propsMepper.mapProps(this.props);
     const {
       rotateAnimation,
       weekDaysDataAnimation,
@@ -101,7 +104,7 @@ export default class Calender extends React.Component {
             style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
             <View>
               <DaysNames />
-              <WeekDays />
+              <WeekDays {...{selectedWeek}} />
               <NextPrevNavigator {...weekNavigationProps} />
             </View>
           </Animated.View>
@@ -279,7 +282,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    height: 50,
+    height: 40,
     width: 70,
     borderRadius: 50,
   },

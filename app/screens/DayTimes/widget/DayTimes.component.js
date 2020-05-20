@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import DayTimesMainView from './components/DayTimes.mainView';
 import PropsMapper from './DayTimes.propsMapper';
-import DayTimesMockRedux from './components/DayTimeMock.redux';
 
 export default class DayTimesComponent extends Component {
   constructor(props) {
@@ -15,7 +14,7 @@ export default class DayTimesComponent extends Component {
 
   render() {
     return (
-      <DayTimesMockRedux {...this.propsMapper.mapComponentProps(this.props)} />
+      <DayTimesMainView {...this.propsMapper.mapComponentProps(this.props)} />
     );
   }
 }

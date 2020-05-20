@@ -1,159 +1,122 @@
 import React from 'react';
-import {StyleSheet, ScrollView, Image, View} from 'react-native';
-import {Layout, Text, Button, Icon, Modal} from '@ui-kitten/components';
-import CustomDatePicker from './DayTimes.CustomDatePicker';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
+import {Text, Icon, Layout, Modal} from '@ui-kitten/components';
+import {Calender} from '../../../../commonComponents';
 import SearchLocation from '../../../SearchLocation/widget/SearchLocation.connect';
 import DayHoursView from './DayTimes.dayHoursView';
-import HeDate from 'hebcal';
 
-// const BottomTabBar = () => {
-//   const [index, setIndex] = React.useState(0);
-//
-//   return (
-//     <SafeAreaView style={{marginBottom: 8}}>
-//       <TabBar selectedIndex={index} onSelect={setIndex}>
-//         <Tab title={'הגר"א'} />
-//         <Tab title={'מ"א'} />
-//         <Tab title={'ר"ת'} />
-//       </TabBar>
-//     </SafeAreaView>
-//   );
-// };
+const {width} = Dimensions.get('window');
 
-const TimeCard = ({title, time, image}) => {
-  return (
-    <View style={styles.card}>
-      <View style={{flex: 2}}>
-        <Text>{title}</Text>
-      </View>
-      <View style={{flex: 1}}>
-        <Text style={{textAlign: 'left'}}>{time}</Text>
-      </View>
-      {image && (
-        <View style={{flex: 1}}>
-          <Image source={image} style={styles.sunImage} />
-        </View>
-      )}
-    </View>
-  );
-};
-
-export default class DayTimesMainView extends React.Component {
+export default class DayTimesMockMainView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      date: null,
       searchLocationOpen: false,
     };
-    this.dateRef = React.createRef();
-  }
-  componentDidMount(): void {
-    const {loadSunTimesCurrentLocation} = this.props;
-    loadSunTimesCurrentLocation();
   }
 
-  closeSearchLocationModal = () => {
+  onSelectLocation = location => {
+    const {onSelectLocation: parentOnSelectLocation} = this.props;
+    parentOnSelectLocation(location);
+    this.closeSearchLocation();
+  };
+
+  closeSearchLocation = () => {
     this.setState({searchLocationOpen: false});
   };
 
-  onSelectLocation = location => {
-    this.closeSearchLocationModal();
-    this.props.onSelectLocation(location);
+  getRefreshControl = () => {
+    const {loadSunTimesCurrentLocation} = this.props;
+    return (
+      <RefreshControl
+        refreshing={false}
+        onRefresh={loadSunTimesCurrentLocation}
+      />
+    );
   };
 
-  renderDayTimes = () => {
-    const {dayTimes} = this.props;
-    const toRender = [];
-    for (let i = 0; i < dayTimes.length; i++) {
-      toRender.push(<TimeCard {...dayTimes[i]} />);
-    }
-    return toRender;
-  };
-
-  getHeDateString = () => {
-    const dates = [
-      'ניסן',
-      'אייר',
-      'סיון',
-      'תמוז',
-      'אב',
-      'אלול',
-      'תישרי',
-      'חשון',
-      'כסלו',
-      'טבט',
-      'שבט',
-      'אדר',
-    ];
-    const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
-    const {selectedDate} = this.props;
-    const hebDate = HeDate.HDate(selectedDate);
-    const year = HeDate.gematriya(hebDate.year);
-    const month = dates[hebDate.month - 1];
-    const date = HeDate.gematriya(hebDate.day);
-    const day = days[selectedDate.getDay()];
-    return `יום ${day} ${date} ${month} ${year}`;
+  SearchLocationModal = () => {
+    const {searchLocationOpen} = this.state;
+    return (
+      <Modal
+        backdropStyle={styles.backdrop}
+        onBackdropPress={this.closeSearchLocation}
+        visible={searchLocationOpen}>
+        <Layout style={styles.modalContainer}>
+          <SearchLocation
+            onBack={this.closeSearchLocation}
+            onSelect={this.onSelectLocation}
+          />
+        </Layout>
+      </Modal>
+    );
   };
 
   render() {
+    const {SearchLocationModal} = this;
     const {
-      dayTimes,
       selectedDate,
-      onDateChange,
-      selectedLocation,
+      navigationDate,
+      setNavigationDate,
       loadCurrentLocationTimesError,
+      dayTimes,
+      setSelectedDate,
+      selectedLocation,
+      selectedDateFormatted,
     } = this.props;
-    const {searchLocationOpen} = this.state;
     return (
-      <View style={styles.container}>
-        <Modal
-          backdropStyle={styles.backdrop}
-          onBackdropPress={this.closeSearchLocationModal}
-          visible={searchLocationOpen}>
-          <Layout style={styles.modalContainer}>
-            <SearchLocation
-              onBack={this.closeSearchLocationModal}
-              onSelect={this.onSelectLocation}
-            />
-          </Layout>
-        </Modal>
-        {loadCurrentLocationTimesError.length ? (
-          <View>
-            <Text>loadCurrentLocationTimesError</Text>
-            <Text>{loadCurrentLocationTimesError}</Text>
+      <ScrollView
+        style={styles.container}
+        refreshControl={this.getRefreshControl()}>
+        <SearchLocationModal />
+        <View style={styles.topWrapper}>
+          <View style={styles.title}>
+            <Text style={styles.titleText}>זמני היום</Text>
           </View>
-        ) : <View />}
-        <View style={styles.scrollView}>
-          <Text style={styles.text}>{this.getHeDateString()}</Text>
-          <Text style={styles.text}>
-            {selectedDate && selectedDate.toLocaleDateString()}
-          </Text>
-          <Text style={styles.text}>
-            {selectedLocation && selectedLocation.formattedName}
-          </Text>
-          <CustomDatePicker
-            refProp={this.dateRef}
-            size="large"
-            placeholder="בחר תאריך"
-            date={selectedDate}
-            onSelect={d => {
-              onDateChange(d);
-              this.dateRef.current.blur();
-            }}
-            label="שנה תאריך"
-            labelStyle={{fontSize: 16, textAlign: 'left'}}
-          />
-          <Button
-            style={styles.link}
-            icon={style => (
-              <Icon {...style} name="edit-location" pack="material" />
-            )}
-            onPress={() => this.setState({searchLocationOpen: true})}>
-            שנה מיקום
-          </Button>
-          <DayHoursView {...{dayTimes}} />
+          <View style={styles.locationButtonView}>
+            <TouchableOpacity
+              style={styles.locationButtonTouchable}
+              onPress={() => this.setState({searchLocationOpen: true})}>
+              <Text style={styles.locationButtonText}>
+                {loadCurrentLocationTimesError ||
+                  (selectedLocation && selectedLocation.formattedName) ||
+                  'no location'}
+              </Text>
+              <Icon
+                style={styles.locationButtonIcon}
+                name="edit-location"
+                pack="material"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+        <Calender
+          {...{
+            setSelectedDate,
+            navigationDate,
+            setNavigationDate,
+            selectedDate,
+          }}
+        />
+        <View style={styles.pageContent}>
+          <View style={styles.selectedDateWrap}>
+            <Text style={styles.selectedDateText}>
+              {selectedDateFormatted.formattedDate}
+            </Text>
+            <Text style={styles.selectedDateText}>
+              {selectedDateFormatted.formattedDateHe}
+            </Text>
+          </View>
+          <DayHoursView dayTimes={dayTimes} />
+        </View>
+      </ScrollView>
     );
   }
 }
@@ -161,34 +124,7 @@ export default class DayTimesMainView extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: 385,
-  },
-  scrollView: {
-    padding: 16,
-    flex: 2,
-  },
-  text: {
-    textAlign: 'center',
-  },
-  card: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 4,
-    borderWidth: 0.8,
-    marginBottom: 8,
-  },
-  item: {
-    textAlign: 'left',
-  },
-  sunImage: {
-    width: 25,
-    height: 25,
-  },
-  link: {
-    marginBottom: 10,
-    marginTop: 10,
+    width,
   },
   modalContainer: {
     justifyContent: 'center',
@@ -196,7 +132,102 @@ const styles = StyleSheet.create({
     width: 400,
     height: 600,
   },
-  backdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  topWrapper: {
+    paddingHorizontal: 20,
+  },
+  title: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingTop: 16,
+  },
+  titleText: {
+    fontFamily: 'Assistant-Light',
+    fontSize: 24,
+    color: '#F3EDD0',
+  },
+  locationButtonView: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 8,
+  },
+  locationButtonTouchable: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F3EDD0',
+    paddingLeft: 16,
+    borderRadius: 50,
+  },
+  locationButtonIcon: {
+    height: 30,
+    color: '#706F6C',
+  },
+  locationButtonText: {
+    fontFamily: 'Assistant-Bold',
+    fontSize: 16,
+    color: '#706F6C',
+  },
+  weekDays: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+    marginTop: 4,
+  },
+  weekDaysDayInWeekText: {
+    fontFamily: 'Assistant-Regular',
+    fontSize: 32,
+    lineHeight: 32,
+    color: '#F3EDD0',
+  },
+  calendarWrapper: {
+    paddingHorizontal: 20,
+  },
+  openCalenderButtonView: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    backgroundColor: '#F3EDD0',
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+  },
+  openCalenderButtonTouchable: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    height: 50,
+    width: 70,
+    borderRadius: 50,
+  },
+  openCalenderButtonSVG: {
+    position: 'absolute',
+  },
+  pageContent: {
+    minHeight: 300,
+    width,
+    backgroundColor: '#F3EDD0',
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  selectedDateWrap: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  selectedDateText: {
+    fontFamily: 'Assistant-Regular',
+    fontSize: 16,
+    lineHeight: 16,
+    color: '#706F6C',
+    paddingHorizontal: 10,
   },
 });

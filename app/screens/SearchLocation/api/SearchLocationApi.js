@@ -31,6 +31,7 @@ export default class SearchLocationApi extends BaseApi {
       .filter(loc => loc.components._type === 'city')
       .map(loc => ({
         formattedName: loc.components.city,
+        timezone: loc.annotations.timezone.name,
         coords: {
           longitude: loc.geometry.lng,
           latitude: loc.geometry.lat,

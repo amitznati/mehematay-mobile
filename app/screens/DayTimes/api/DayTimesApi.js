@@ -1,5 +1,5 @@
 import GetLocation from 'react-native-get-location';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import SimpleServices from '../../../sdk/services/SimpleServices';
 import BaseApi from '../../../sdk/BaseApi';
 import selectors from './DayTimesSelectors';
@@ -54,6 +54,7 @@ export default class DayTimesApi extends BaseApi {
   };
 
   getDayTimesPerAgra = res => {
+    const location = this.getSelectedLocationSelector();
     const addMinutes = (dt, minutes) => {
       return new Date(dt.getTime() + minutes * 60000);
     };
@@ -84,12 +85,11 @@ export default class DayTimesApi extends BaseApi {
     retVal.plagMinha = addHours(retVal.sunset, dayHourRatio * -1.25);
     retVal.tzetHakohavim = addMinutes(retVal.sunset, dayHourRatio * 18);
     retVal.tzetHakohavimRT = addMinutes(retVal.sunset, dayHourRatio * 72);
-    console.log('retVal: ', retVal);
     const retValWithTemplate = JSON.parse(JSON.stringify(dayTimesTemplateObj));
     Object.keys(retVal).forEach(field => {
-      retValWithTemplate.find(t => t.key === field).time = moment(
-        retVal[field],
-      ).format('HH:mm');
+      retValWithTemplate.find(t => t.key === field).time = moment(retVal[field])
+        .tz(location.timezone)
+        .format('HH:mm');
     });
 
     return retValWithTemplate;
@@ -102,7 +102,8 @@ export default class DayTimesApi extends BaseApi {
 
   loadSunTimesCurrentLocation = async () => {
     this.startSpinner('loadSunTimesCurrentLocation');
-    GetLocation.getCurrentPosition({timeout: 1500})
+    this.setSelectedDate(new Date());
+    GetLocation.getCurrentPosition({enableHighAccuracy: true, timeout: 15000})
       .then(res => {
         this.APIsInstances.SearchLocationApi.getCityLocationByCoords(res).then(
           this.onSelectLocation,
