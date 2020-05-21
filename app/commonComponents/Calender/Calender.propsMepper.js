@@ -10,13 +10,13 @@ export default class CalenderPropsMapper {
     const {navigationDate, selectedDate} = props;
     return {
       ...props,
+      navigationDate,
+      selectedDate,
       monthAndYearNavigationProps: this.getMonthAndYearNavigationProps(
         navigationDate,
       ),
       weekNavigationProps: this.getWeekNavigationProps(navigationDate),
       selectedWeek: this.getSelectedWeek(navigationDate, selectedDate),
-      navigationDate,
-      selectedDate,
       onSelectDate: this.onSelectDate,
     };
   };

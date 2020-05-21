@@ -62,11 +62,7 @@ export default class DayTimesApi extends BaseApi {
       return new Date(dt.getTime() + hours * 3600000);
     };
     const getDayHourDate = dayHourRatio => {
-      return new Date(
-        1120780800000 +
-          dayHourRatio * 3600000 +
-          new Date().getTimezoneOffset() * 60000,
-      );
+      return moment(1120780800000 + dayHourRatio * 3600000).tz('Etc/GMT+0');
     };
     const {sunrise, sunset} = res;
     const retVal = {};
@@ -88,7 +84,7 @@ export default class DayTimesApi extends BaseApi {
     const retValWithTemplate = JSON.parse(JSON.stringify(dayTimesTemplateObj));
     Object.keys(retVal).forEach(field => {
       retValWithTemplate.find(t => t.key === field).time = moment(retVal[field])
-        .tz(location.timezone)
+        .tz(field === 'dayHour' ? 'Etc/GMT+0' : location.timezone)
         .format('HH:mm');
     });
 
