@@ -14,7 +14,7 @@ const reducer = (state = initialState, action) => {
   const payload = action && action.payload;
   const type = action && action.type;
   switch (type) {
-    case `${ActionTypes.LOAD_SUN_TIMES}${SUCCESS}`:
+    case ActionTypes.LOAD_SUN_TIMES:
       newState = {
         ...state,
         dayTimes: [...payload],

@@ -4,9 +4,9 @@ import NextPrevNavigator from './../NextPrevNavigator';
 import {Calendar} from 'react-native-calendars';
 import CalenderDay from './Day';
 import {Text} from '@ui-kitten/components';
-import DayTimesDay from '../../screens/DayTimes/widget/components/DayTimes.Day';
+import Day from './Day';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
-import CalenderPropsMapper from './Calender.propsMepper';
+import CalenderPropsMapper from './Calender.propsMapper';
 
 export default class Calender extends React.Component {
   constructor(props) {
@@ -16,7 +16,7 @@ export default class Calender extends React.Component {
       calenderHeightAnimation: new Animated.Value(1),
       rotateAnimation: new Animated.Value(0),
       opacityAnimation: new Animated.Value(1),
-      weekDaysDataAnimation: new Animated.Value(150),
+      weekDaysDataAnimation: new Animated.Value(180),
     };
   }
 
@@ -30,7 +30,7 @@ export default class Calender extends React.Component {
     } = this.state;
     Animated.parallel([
       Animated.timing(calenderHeightAnimation, {
-        toValue: isCalenderOpen ? 1 : 500,
+        toValue: isCalenderOpen ? 1 : 550,
         duration: 500,
       }),
       Animated.timing(rotateAnimation, {
@@ -42,7 +42,7 @@ export default class Calender extends React.Component {
         duration: 500,
       }),
       Animated.timing(weekDaysDataAnimation, {
-        toValue: isCalenderOpen ? 150 : 0,
+        toValue: isCalenderOpen ? 180 : 0,
         duration: 500,
       }),
     ]).start(() => {
@@ -64,13 +64,21 @@ export default class Calender extends React.Component {
     );
   };
 
-  WeekDays = ({selectedWeek}) => {
+  WeekDays = ({selectedWeek, holidays, selectedLocation}) => {
     const {onSelectDate} = this.propsMepper;
     return (
       <View style={styles.weekDays}>
         {selectedWeek.map(date => {
           const key = `${date.date.day}-${date.date.month}`;
-          return <DayTimesDay key={key} {...date} onSelect={onSelectDate} />;
+          return (
+            <Day
+              key={key}
+              {...date}
+              onSelect={onSelectDate}
+              holidays={holidays}
+              selectedLocation={selectedLocation}
+            />
+          );
         })}
       </View>
     );
@@ -85,6 +93,8 @@ export default class Calender extends React.Component {
       navigationDate,
       selectedDate,
       selectedWeek,
+      holidays,
+      selectedLocation,
     } = this.propsMepper.mapProps(this.props);
     const {
       rotateAnimation,
@@ -104,7 +114,7 @@ export default class Calender extends React.Component {
             style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
             <View>
               <DaysNames />
-              <WeekDays {...{selectedWeek}} />
+              <WeekDays {...{selectedWeek, holidays, selectedLocation}} />
               <NextPrevNavigator {...weekNavigationProps} />
             </View>
           </Animated.View>
@@ -141,6 +151,8 @@ export default class Calender extends React.Component {
                         onSelectDate(date);
                       },
                       fromCalender: true,
+                      holidays,
+                      selectedLocation,
                     }}
                   />
                 );
@@ -256,7 +268,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 10,
     marginTop: 4,
   },
   weekDaysDayInWeekText: {

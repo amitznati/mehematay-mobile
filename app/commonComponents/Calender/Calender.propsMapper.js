@@ -7,7 +7,8 @@ export default class CalenderPropsMapper {
   }
 
   mapProps = props => {
-    const {navigationDate, selectedDate} = props;
+    const {navigationDate, selectedDate, selectedLocation} = props;
+    const heDate = new Hebcal.HDate(selectedDate);
     return {
       ...props,
       navigationDate,
@@ -15,9 +16,13 @@ export default class CalenderPropsMapper {
       monthAndYearNavigationProps: this.getMonthAndYearNavigationProps(
         navigationDate,
       ),
-      weekNavigationProps: this.getWeekNavigationProps(navigationDate),
+      weekNavigationProps: this.getWeekNavigationProps(
+        navigationDate,
+        selectedLocation,
+      ),
       selectedWeek: this.getSelectedWeek(navigationDate, selectedDate),
       onSelectDate: this.onSelectDate,
+      holidays: new Hebcal(heDate.year).holidays,
     };
   };
 
@@ -83,20 +88,32 @@ export default class CalenderPropsMapper {
     };
   };
 
-  getWeekNavigationProps = navigationDate => {
+  getWeekNavigationProps = (navigationDate, selectedLocation) => {
     const sunday = new Date(navigationDate);
     sunday.setDate(sunday.getDate() - navigationDate.getDay());
     const saturday = new Date(sunday);
     saturday.setDate(sunday.getDate() + 6);
     const heFromDate = new Hebcal.HDate(sunday);
     const heToDate = new Hebcal.HDate(saturday);
+    if (selectedLocation && selectedLocation.coords && heFromDate && heToDate) {
+      heFromDate.setLocation(
+        selectedLocation.coords.latitude,
+        selectedLocation.coords.longitude,
+      );
+      heToDate.setLocation(
+        selectedLocation.coords.latitude,
+        selectedLocation.coords.longitude,
+      );
+    }
     const toDayHe = Hebcal.gematriya(heToDate.day);
     const fromDayHe = Hebcal.gematriya(heFromDate.day);
     const monthNameHe = monthsArrayHe[heToDate.month - 1];
     const monthName = monthsArray[saturday.getMonth()];
     const yearHe = Hebcal.gematriya(heFromDate.year);
     const year = saturday.getFullYear();
-    const heStr = `${fromDayHe}-${toDayHe} ${monthNameHe} ${yearHe}`;
+    const heStr = `${fromDayHe}-${toDayHe} ${monthNameHe} ${yearHe} ${heToDate.getSedra(
+      'h',
+    )}`;
     const enStr = `${year} ${monthName} ${saturday.getDate()}-${sunday.getDate()}`;
     return {
       main: {

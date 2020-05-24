@@ -12,7 +12,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const {width} = Dimensions.get('window');
 const {StatusBarManager} = NativeModules;
-const MyHeader = ({navigation}) => {
+const MyHeader = ({navigation, title}) => {
+  console.log(title);
   return (
     <View style={styles.headerWrap}>
       <View style={styles.header}>
@@ -23,7 +24,10 @@ const MyHeader = ({navigation}) => {
             <Icon name="menu" size={30} color="#F3EDD0" />
           </View>
         </TouchableOpacity>
-        <Text style={styles.headerTitleStyle}>{' מאימתי '}</Text>
+        <View style={styles.titleTextWrap}>
+          <Text style={styles.headerTitleStyle}>{' מאימתי '}</Text>
+          {title && <Text style={styles.titleText}>{title}</Text>}
+        </View>
         <View style={{width: 50}} />
       </View>
       <LinearGradient
@@ -35,7 +39,7 @@ const MyHeader = ({navigation}) => {
   );
 };
 
-export default function PageWrapper({Page, navigation}) {
+export default function PageWrapper({Page, navigation, title}) {
   return (
     <LinearGradient
       start={{x: 1, y: 0}}
@@ -43,7 +47,7 @@ export default function PageWrapper({Page, navigation}) {
       locations={[0, 0.5, 0.6, 1]}
       colors={['#8E3032', '#552022', '#552022', '#8E3032']}
       style={styles.container}>
-      <MyHeader {...{navigation}} />
+      <MyHeader {...{navigation, title}} />
       <View style={styles.pageWrap}>
         <Page {...{navigation}} />
       </View>
@@ -64,6 +68,23 @@ const styles = StyleSheet.create({
     width,
     height: 70,
   },
+  titleTextWrap: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    //justifyContent: 'flex-end',
+    //height: 70,
+  },
+  titleText: {
+    fontFamily: 'Assistant-Light',
+    fontSize: 24,
+    lineHeight: 24,
+    color: '#F3EDD0',
+    textShadowOffset: {width: 1, height: 2},
+    textShadowRadius: 5,
+    textShadowColor: '#000',
+    paddingTop: 4,
+  },
   header: {
     backgroundColor: '#8E3032',
     display: 'flex',
@@ -77,7 +98,7 @@ const styles = StyleSheet.create({
   headerTitleStyle: {
     fontFamily: 'drugulinclm-bold-webfont',
     fontSize: 32,
-    lineHeight: 50,
+    lineHeight: 32,
     color: '#F3EDD0',
     textShadowOffset: {width: 1, height: 2},
     textShadowRadius: 5,

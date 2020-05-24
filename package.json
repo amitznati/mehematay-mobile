@@ -4,6 +4,7 @@
   "private": false,
   "scripts": {
     "android": "react-native run-android",
+    "android:noJetifier": "react-native run-android --no-jetifier",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "build": "react-native build:android",

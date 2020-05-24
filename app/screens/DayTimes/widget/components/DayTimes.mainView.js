@@ -77,9 +77,9 @@ export default class DayTimesMockMainView extends React.Component {
         refreshControl={this.getRefreshControl()}>
         <SearchLocationModal />
         <View style={styles.topWrapper}>
-          <View style={styles.title}>
-            <Text style={styles.titleText}>זמני היום</Text>
-          </View>
+          {/*<View style={styles.title}>*/}
+          {/*  <Text style={styles.titleText}>זמני היום</Text>*/}
+          {/*</View>*/}
           <View style={styles.locationButtonView}>
             <TouchableOpacity
               style={styles.locationButtonTouchable}
@@ -103,6 +103,7 @@ export default class DayTimesMockMainView extends React.Component {
             navigationDate,
             setNavigationDate,
             selectedDate,
+            selectedLocation,
           }}
         />
         <View style={styles.pageContent}>
@@ -125,6 +126,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width,
+    paddingTop: 8,
   },
   modalContainer: {
     justifyContent: 'center',
@@ -170,14 +172,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Assistant-Bold',
     fontSize: 16,
     color: '#706F6C',
-  },
-  weekDays: {
-    display: 'flex',
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-    marginTop: 4,
   },
   weekDaysDayInWeekText: {
     fontFamily: 'Assistant-Regular',

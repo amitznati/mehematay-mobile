@@ -22,7 +22,9 @@ const HomeWithHeader = ({navigation}) => {
   return <PageWrapper navigation={navigation} Page={HomeScreen} />;
 };
 const DayTimesPage = ({navigation}) => {
-  return <PageWrapper navigation={navigation} Page={DayTimes} />;
+  return (
+    <PageWrapper navigation={navigation} Page={DayTimes} title="זמני היום" />
+  );
 };
 
 const Drawer = createDrawerNavigator();

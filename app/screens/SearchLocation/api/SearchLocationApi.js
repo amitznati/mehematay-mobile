@@ -53,20 +53,24 @@ export default class SearchLocationApi extends BaseApi {
       ActionTypes.LOAD_LOCATION_NAME,
       this.onLoadLocationNameSuccess,
     );
-    const cityLocation = await this.searchLocation(locationCity, false);
-    return cityLocation && cityLocation[0];
+    // const cityLocation = await this.searchLocation(locationCity, false);
+    return locationCity;
   };
 
   onLoadLocationNameSuccess = res => {
-    return (
-      res &&
-      res.data &&
-      res.data.results &&
-      res.data.results[0] &&
-      res.data.results[0].components &&
-      (res.data.results[0].components.town ||
-        res.data.results[0].components.city)
-    );
+    const results = res && res.data && res.data.results;
+    if (!results) {
+      return [];
+    }
+    const loc = results[0];
+    return {
+      formattedName: loc.components.city || loc.components.town,
+      timezone: loc.annotations.timezone.name,
+      coords: {
+        longitude: loc.geometry.lng,
+        latitude: loc.geometry.lat,
+      },
+    };
   };
 
   getLocationResultsSelector = () => {
