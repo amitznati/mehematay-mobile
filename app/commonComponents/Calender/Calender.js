@@ -1,4 +1,5 @@
 import React from 'react';
+import Hebcal from 'hebcal';
 import {Animated, StyleSheet, TouchableOpacity, View} from 'react-native';
 import NextPrevNavigator from './../NextPrevNavigator';
 import {Calendar} from 'react-native-calendars';
@@ -6,17 +7,19 @@ import CalenderDay from './Day';
 import {Text} from '@ui-kitten/components';
 import Day from './Day';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
-import CalenderPropsMapper from './Calender.propsMapper';
+import ScrollSelectModal from '../ScrollSelectModal';
+import {monthsArrayHe, monthsArray} from '../constants';
 
 export default class Calender extends React.Component {
   constructor(props) {
     super(props);
-    this.propsMepper = new CalenderPropsMapper(props);
     this.state = {
       calenderHeightAnimation: new Animated.Value(1),
       rotateAnimation: new Animated.Value(0),
       opacityAnimation: new Animated.Value(1),
       weekDaysDataAnimation: new Animated.Value(180),
+      yearsModalOpen: false,
+      monthsModalOpen: false,
     };
   }
 
@@ -65,7 +68,7 @@ export default class Calender extends React.Component {
   };
 
   WeekDays = ({selectedWeek, holidays, selectedLocation}) => {
-    const {onSelectDate} = this.propsMepper;
+    const {onSelectDate} = this.props;
     return (
       <View style={styles.weekDays}>
         {selectedWeek.map(date => {
@@ -84,8 +87,84 @@ export default class Calender extends React.Component {
     );
   };
 
+  openYearsSelectModal = () => {
+    this.setState({yearsModalOpen: true});
+  };
+
+  closeYearsModal = () => {
+    this.setState({yearsModalOpen: false});
+  };
+
+  openMonthSelectModal = () => {
+    this.setState({monthsModalOpen: true});
+  };
+
+  closeMonthModal = () => {
+    this.setState({monthsModalOpen: false});
+  };
+
+  onSelectYear = item => {
+    this.closeYearsModal();
+    this.props.onSelectYear(item.id);
+  };
+
+  onSelectMonth = item => {
+    this.closeMonthModal();
+    this.props.onSelectMonth(item.id);
+  };
+
+  YearSelectModal = () => {
+    const {navigationDate} = this.props;
+    const years = Hebcal.range(
+      navigationDate.getFullYear() - 100,
+      navigationDate.getFullYear() + 100,
+    );
+    const yearText = year => {
+      const heYear = Hebcal.gematriya(
+        new Hebcal.HDate(new Date(year, 1, 1)).year,
+      );
+      return `${year} ${heYear}`;
+    };
+
+    const data = years.map(year => ({key: year, title: yearText(year)}));
+    return (
+      <ScrollSelectModal
+        closeModal={this.closeYearsModal}
+        data={data}
+        modalOpen={this.state.yearsModalOpen}
+        onSelect={this.onSelectYear}
+        defaultIndex={years.indexOf(navigationDate.getFullYear())}
+      />
+    );
+  };
+
+  MonthSelectModal = () => {
+    const {navigationDate} = this.props;
+    const months = Hebcal.range(0, 11).map(monthIndex => {
+      const date = new Date(navigationDate);
+      date.setMonth(monthIndex);
+      date.setDate(1);
+      const heDate = new Hebcal.HDate(date);
+      return {
+        key: monthIndex,
+        title: `${monthsArray[monthIndex]} ~ ${
+          monthsArrayHe[heDate.month - 1]
+        }`,
+      };
+    });
+    return (
+      <ScrollSelectModal
+        closeModal={this.closeMonthModal}
+        data={months}
+        modalOpen={this.state.monthsModalOpen}
+        onSelect={this.onSelectMonth}
+        defaultIndex={navigationDate.getMonth()}
+      />
+    );
+  };
+
   render() {
-    const {DaysNames, WeekDays} = this;
+    const {DaysNames, WeekDays, YearSelectModal, MonthSelectModal} = this;
     const {
       onSelectDate,
       weekNavigationProps,
@@ -95,12 +174,14 @@ export default class Calender extends React.Component {
       selectedWeek,
       holidays,
       selectedLocation,
-    } = this.propsMepper.mapProps(this.props);
+    } = this.props;
     const {
       rotateAnimation,
       weekDaysDataAnimation,
       opacityAnimation,
       calenderHeightAnimation,
+      yearsModalOpen,
+      monthsModalOpen,
     } = this.state;
     const RotateData = rotateAnimation.interpolate({
       inputRange: [0, 1],
@@ -109,6 +190,8 @@ export default class Calender extends React.Component {
 
     return (
       <View>
+        {yearsModalOpen && <YearSelectModal />}
+        {monthsModalOpen && <MonthSelectModal />}
         <View style={styles.topWrapper}>
           <Animated.View
             style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
@@ -121,8 +204,20 @@ export default class Calender extends React.Component {
         </View>
         <Animated.View style={{height: calenderHeightAnimation}}>
           <View style={styles.calendarWrapper}>
-            <NextPrevNavigator {...monthAndYearNavigationProps.year} />
-            <NextPrevNavigator {...monthAndYearNavigationProps.month} />
+            <NextPrevNavigator
+              {...monthAndYearNavigationProps.year}
+              main={{
+                ...monthAndYearNavigationProps.year.main,
+                clickAction: this.openYearsSelectModal,
+              }}
+            />
+            <NextPrevNavigator
+              {...monthAndYearNavigationProps.month}
+              main={{
+                ...monthAndYearNavigationProps.month.main,
+                clickAction: this.openMonthSelectModal,
+              }}
+            />
             <DaysNames />
           </View>
           <View>
@@ -218,11 +313,21 @@ export default class Calender extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    width: 400,
-    height: 600,
+  yearsModalItemWrap: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  yearsModalItemText: {
+    fontFamily: 'Assistant-Light',
+    fontSize: 24,
+    lineHeight: 30,
+    color: '#8E3032',
+  },
+  backdrop: {
+    backgroundColor: 'rgba(66,65,62,0.5)',
   },
   topWrapper: {
     paddingHorizontal: 20,

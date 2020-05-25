@@ -7,8 +7,9 @@ export default class CalenderPropsMapper {
   }
 
   mapProps = props => {
+    this.props = props;
     const {navigationDate, selectedDate, selectedLocation} = props;
-    const heDate = new Hebcal.HDate(selectedDate);
+    const heDate = new Hebcal.HDate(navigationDate);
     return {
       ...props,
       navigationDate,
@@ -23,6 +24,8 @@ export default class CalenderPropsMapper {
       selectedWeek: this.getSelectedWeek(navigationDate, selectedDate),
       onSelectDate: this.onSelectDate,
       holidays: new Hebcal(heDate.year).holidays,
+      onSelectYear: this.onSelectYear,
+      onSelectMonth: this.onSelectMonth,
     };
   };
 
@@ -30,6 +33,19 @@ export default class CalenderPropsMapper {
     const {setSelectedDate, setNavigationDate} = this.props;
     setSelectedDate(date);
     setNavigationDate(date);
+  };
+
+  onSelectYear = year => {
+    const {navigationDate, setNavigationDate} = this.props;
+    const newNavigationDate = new Date(navigationDate);
+    newNavigationDate.setFullYear(year);
+    setNavigationDate(newNavigationDate);
+  };
+  onSelectMonth = month => {
+    const {navigationDate, setNavigationDate} = this.props;
+    const newNavigationDate = new Date(navigationDate);
+    newNavigationDate.setMonth(month);
+    setNavigationDate(newNavigationDate);
   };
 
   getMonthAndYearNavigationProps = navigationDate => {

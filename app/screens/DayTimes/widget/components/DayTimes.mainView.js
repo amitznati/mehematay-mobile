@@ -77,9 +77,6 @@ export default class DayTimesMockMainView extends React.Component {
         refreshControl={this.getRefreshControl()}>
         <SearchLocationModal />
         <View style={styles.topWrapper}>
-          {/*<View style={styles.title}>*/}
-          {/*  <Text style={styles.titleText}>זמני היום</Text>*/}
-          {/*</View>*/}
           <View style={styles.locationButtonView}>
             <TouchableOpacity
               style={styles.locationButtonTouchable}
@@ -165,7 +162,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   locationButtonIcon: {
-    height: 30,
+    height: 24,
     color: '#706F6C',
   },
   locationButtonText: {

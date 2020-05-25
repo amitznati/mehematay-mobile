@@ -13,7 +13,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 const {width} = Dimensions.get('window');
 const {StatusBarManager} = NativeModules;
 const MyHeader = ({navigation, title}) => {
-  console.log(title);
   return (
     <View style={styles.headerWrap}>
       <View style={styles.header}>
