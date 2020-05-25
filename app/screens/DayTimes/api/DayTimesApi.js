@@ -26,8 +26,8 @@ const dayTimesTemplateObj = [
   {key: 'minhaKtana', title: 'מנחה קטנה'},
   {key: 'plagMinha', title: 'פלג מנחה'},
   {key: 'sunset', title: 'שקיעה'},
-  {key: 'tzetHakohavim', title: 'צאת הכוכים'},
-  {key: 'tzetHakohavimRT', title: 'צאת הכוכים ר"ת'},
+  {key: 'tzetHakohavim', title: 'צאת הכוכבים'},
+  {key: 'tzetHakohavimRT', title: 'צאת הכוכבים ר"ת'},
 ];
 export default class DayTimesApi extends BaseApi {
   getDayTimesSelector = () => {
