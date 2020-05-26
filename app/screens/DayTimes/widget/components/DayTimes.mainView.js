@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3EDD0',
     paddingHorizontal: 20,
     paddingBottom: 30,
+    marginBottom: 30,
   },
   selectedDateWrap: {
     display: 'flex',

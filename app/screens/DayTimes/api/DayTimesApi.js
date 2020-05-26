@@ -1,6 +1,5 @@
 import GetLocation from 'react-native-get-location';
 import moment from 'moment-timezone';
-import SimpleServices from '../../../sdk/services/SimpleServices';
 import BaseApi from '../../../sdk/BaseApi';
 import selectors from './DayTimesSelectors';
 import Hebcal from 'hebcal';
@@ -35,19 +34,6 @@ export default class DayTimesApi extends BaseApi {
   };
 
   loadSunTimes = async (coords, date = this.getSelectedDateSelector()) => {
-    // await this.serviceRequest(
-    //   SimpleServices.loadSunTimes,
-    //   {
-    //     config: {
-    //       lat: coords.latitude, // 31.0579367
-    //       lng: coords.longitude, // 35.0389234
-    //       formatted: 0,
-    //       date: moment(date).format('YYYY-MM-DD'),
-    //     },
-    //   },
-    //   ActionTypes.LOAD_SUN_TIMES,
-    //   this.onLoadSunTimesSuccess,
-    // );
     const heDate = new Hebcal.HDate(date);
     heDate.setLocation(coords.latitude, coords.longitude);
     const res = {
@@ -59,11 +45,6 @@ export default class DayTimesApi extends BaseApi {
       type: ActionTypes.LOAD_SUN_TIMES,
       payload,
     });
-  };
-
-  onLoadSunTimesSuccess = res => {
-    const payload = {...res.data.results};
-    return this.getDayTimesPerAgra(payload);
   };
 
   getDayTimesPerAgra = res => {

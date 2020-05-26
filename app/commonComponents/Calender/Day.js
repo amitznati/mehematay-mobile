@@ -14,8 +14,11 @@ const isToday = someDate => {
   );
 };
 
-const getEventText = (event, heDate) => {
-  const eventText = event && event.find(ev => ev.desc[2] !== 'ערב שבת');
+const getEventText = (events = [], heDate) => {
+  const newEvent = events.filter(
+    e => (heDate.il && !e.CHUL_ONLY) || !heDate.il,
+  );
+  const eventText = newEvent.find(ev => ev.desc[2] !== 'ערב שבת');
   let text = eventText && eventText.desc[2];
   if (text === 'שבת') {
     text = heDate.getSedra('h').join(' ');
@@ -25,11 +28,11 @@ const getEventText = (event, heDate) => {
 
 export default function CalenderDay({
   date,
-  state,
   selected,
   onSelect = () => {},
   holidays,
   selectedLocation,
+  isVisible,
 }) {
   if (!date) {
     return null;
@@ -44,14 +47,13 @@ export default function CalenderDay({
     );
   }
   const day = date.day;
-  const disabled = state === 'disabled';
   const textStyle = [
     styles.weekDaysDayTouchableText,
-    disabled ? styles.weekDaysDayTouchableTextDisabled : {},
     isToday(thisDate) ? styles.weekDaysDayTouchableTextTodayText : {},
+    !isVisible ? styles.noneVisible : {},
   ];
-  const event = holidays[heDate.toString()];
-  const eventText = getEventText(event, heDate);
+  const events = holidays[heDate.toString()];
+  const eventText = getEventText(events, heDate);
   const eventStyle = [
     styles.weekDaysEventText,
     selected ? styles.weekDaysEventTextSelected : {},
@@ -59,10 +61,10 @@ export default function CalenderDay({
   ];
   return (
     <TouchableOpacity
-      onPress={() => onSelect(thisDate)}
+      onPress={() => isVisible && onSelect(thisDate)}
       key={day}
       style={styles.weekDaysDay}>
-      {selected && (
+      {selected && isVisible && (
         <View
           style={[
             styles.weekDaysDayCircle,
@@ -74,7 +76,7 @@ export default function CalenderDay({
         <Text style={textStyle}>{Hebcal.gematriya(heDate.day)}</Text>
         <Text style={textStyle}>{day}</Text>
       </View>
-      {eventText && (
+      {eventText && isVisible && (
         <View style={styles.weekDaysEventWrap}>
           <Text style={eventStyle}>{eventText}</Text>
         </View>
@@ -90,8 +92,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingBottom: 16,
-    // height: 50,
-    // width: (width - 40) / 7,
   },
   weekDaysDaySelected: {
     backgroundColor: '#F3EDD0',
@@ -100,8 +100,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    //justifyContent: 'flex-start',
-    //marginTop: 4,
   },
   weekDaysDayTouchableText: {
     fontFamily: 'Assistant-Light',
@@ -155,8 +153,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    //position: 'absolute',
-    //paddingBottom: 8,
   },
   weekDaysEventText: {
     fontFamily: 'Assistant-Light',
@@ -170,4 +166,7 @@ const styles = StyleSheet.create({
   weekDaysEventTextSelected: {
     color: '#60292A',
   },
+  noneVisible: {
+    color: 'rgba(96,41,42,0)'
+  }
 });

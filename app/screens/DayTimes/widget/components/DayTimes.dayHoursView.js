@@ -1,6 +1,5 @@
 import React from 'react';
-import Timeline from 'react-native-timeline-flatlist';
-import {TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Text} from '@ui-kitten/components';
 
 export default function DayHoursView({dayTimes = []}) {
@@ -15,24 +14,50 @@ export default function DayHoursView({dayTimes = []}) {
       </TouchableOpacity>
     );
   }
-  return (
-    <Timeline
-      listViewContainerStyle={{paddingBottom: 16}}
-      circleSize={20}
-      circleColor="#8E3032"
-      lineColor="#8E3032"
-      timeContainerStyle={{minWidth: 52}}
-      timeStyle={{
-        fontFamily: 'Assistant-Regular',
-        textAlign: 'center',
-        backgroundColor: '#8E3032',
-        color: '#F3EDD0',
-        padding: 5,
-        borderRadius: 13,
-      }}
-      titleStyle={{color: '#706F6C', fontFamily: 'Assistant-Bold'}}
-      descriptionStyle={{color: '#706F6C', fontFamily: 'Assistant-Light'}}
-      data={dayTimes}
-    />
-  );
+  return dayTimes.map(dayTime => {
+    return (
+      <View style={styles.dayTimeWrap} key={dayTime.key}>
+        <View style={styles.dayTimeTitleWrap}>
+          <Text style={styles.dayTimeTitle}>{dayTime.title}</Text>
+          {dayTime.description}
+        </View>
+        <Text style={styles.timeStyle}>{dayTime.time}</Text>
+      </View>
+    );
+  });
 }
+
+const styles = StyleSheet.create({
+  dayTimeWrap: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#8E3032',
+  },
+  dayTimeTitleWrap: {
+    width: 200,
+  },
+  dayTimeTitle: {
+    color: '#706F6C',
+    fontFamily: 'Assistant-Bold',
+    fontSize: 18,
+    lineHeight: 18,
+  },
+  dayTimeDescription: {
+
+  },
+  timeStyle: {
+    fontFamily: 'Assistant-Regular',
+    textAlign: 'center',
+    backgroundColor: '#8E3032',
+    color: '#F3EDD0',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    marginLeft: 40,
+    borderRadius: 13,
+  },
+});

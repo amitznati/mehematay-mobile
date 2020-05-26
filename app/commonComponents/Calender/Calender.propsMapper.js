@@ -8,24 +8,17 @@ export default class CalenderPropsMapper {
 
   mapProps = props => {
     this.props = props;
-    const {navigationDate, selectedDate, selectedLocation} = props;
-    const heDate = new Hebcal.HDate(navigationDate);
     return {
       ...props,
-      navigationDate,
-      selectedDate,
-      monthAndYearNavigationProps: this.getMonthAndYearNavigationProps(
-        navigationDate,
-      ),
-      weekNavigationProps: this.getWeekNavigationProps(
-        navigationDate,
-        selectedLocation,
-      ),
-      selectedWeek: this.getSelectedWeek(navigationDate, selectedDate),
+      monthAndYearNavigationProps: this.getMonthAndYearNavigationProps(),
+      weekNavigationProps: this.getWeekNavigationProps(),
+      selectedWeek: this.getSelectedWeek(),
       onSelectDate: this.onSelectDate,
-      holidays: new Hebcal(heDate.year).holidays,
       onSelectYear: this.onSelectYear,
       onSelectMonth: this.onSelectMonth,
+      monthSelectModalProps: this.getMonthSelectModalProps(),
+      yearSelectModalProps: this.getYearSelectModalProps(),
+      calenderWeeks: this.getCalenderWeeks(),
     };
   };
 
@@ -48,7 +41,8 @@ export default class CalenderPropsMapper {
     setNavigationDate(newNavigationDate);
   };
 
-  getMonthAndYearNavigationProps = navigationDate => {
+  getMonthAndYearNavigationProps = () => {
+    const {navigationDate} = this.props;
     const heDate = new Hebcal.HDate(navigationDate);
     return {
       month: {
@@ -104,7 +98,8 @@ export default class CalenderPropsMapper {
     };
   };
 
-  getWeekNavigationProps = (navigationDate, selectedLocation) => {
+  getWeekNavigationProps = () => {
+    const {navigationDate, selectedLocation} = this.props;
     const sunday = new Date(navigationDate);
     sunday.setDate(sunday.getDate() - navigationDate.getDay());
     const saturday = new Date(sunday);
@@ -147,16 +142,20 @@ export default class CalenderPropsMapper {
     };
   };
 
-  getSelectedWeek = (navigationDate, selectedDay) => {
+  getSelectedWeek = () => {
+    const {selectedLocation, navigationDate, selectedDate} = this.props;
+    const heDate = new Hebcal.HDate(navigationDate);
+    const holidays = new Hebcal(heDate.year).holidays;
     const sunday = new Date(navigationDate);
     sunday.setDate(sunday.getDate() - navigationDate.getDay());
     return [0, 1, 2, 3, 4, 5, 6].map(day => {
       const next = new Date(sunday);
       next.setDate(sunday.getDate() + day);
       const selected =
-        next.getDate() === selectedDay.getDate() &&
-        next.getMonth() === selectedDay.getMonth() &&
-        next.getFullYear() === selectedDay.getFullYear();
+        next.getDate() === selectedDate.getDate() &&
+        next.getMonth() === selectedDate.getMonth() &&
+        next.getFullYear() === selectedDate.getFullYear();
+      const key = `${next.getDate()}-${next.getMonth() + 1}`;
       return {
         date: {
           day: next.getDate(),
@@ -164,8 +163,88 @@ export default class CalenderPropsMapper {
           month: next.getMonth() + 1,
         },
         selected,
+        isVisible: true,
+        onSelect: this.onSelectDate,
+        selectedLocation,
+        key,
+        holidays,
       };
     });
+  };
+
+  getMonthSelectModalProps = () => {
+    const {navigationDate} = this.props;
+    const months = Hebcal.range(0, 11).map(monthIndex => {
+      const date = new Date(navigationDate);
+      date.setMonth(monthIndex);
+      date.setDate(1);
+      const heDate = new Hebcal.HDate(date);
+      return {
+        key: monthIndex,
+        title: `${monthsArray[monthIndex]} ~ ${
+          monthsArrayHe[heDate.month - 1]
+        }`,
+      };
+    });
+    return {
+      months,
+      defaultIndex: navigationDate.getMonth(),
+    };
+  };
+
+  getYearSelectModalProps = () => {
+    const {navigationDate} = this.props;
+    const years = Hebcal.range(
+      navigationDate.getFullYear() - 100,
+      navigationDate.getFullYear() + 100,
+    );
+    const yearText = year => {
+      const heYear = Hebcal.gematriya(
+        new Hebcal.HDate(new Date(year, 1, 1)).year,
+      );
+      return `${year} ${heYear}`;
+    };
+
+    const data = years.map(year => ({key: year, title: yearText(year)}));
+    return {
+      data,
+      defaultIndex: years.indexOf(navigationDate.getFullYear()),
+    };
+  };
+
+  getCalenderWeeks = () => {
+    const {navigationDate, selectedLocation, selectedDate} = this.props;
+    const heDate = new Hebcal.HDate(navigationDate);
+    const holidays = new Hebcal(heDate.year).holidays;
+    const startDate = new Date(navigationDate);
+    startDate.setDate(1);
+    const weeks = Hebcal.range(0, 5).map(week => {
+      return Hebcal.range(0, 6).map(dayInWeek => {
+        const isVisible =
+          startDate.getDay() === dayInWeek &&
+          startDate.getMonth() === navigationDate.getMonth();
+        const date = {
+          year: startDate.getFullYear(),
+          month: startDate.getMonth() + 1,
+          day: startDate.getDate(),
+        };
+        const selected =
+          selectedDate.getFullYear() === startDate.getFullYear() &&
+          selectedDate.getMonth() === startDate.getMonth() &&
+          selectedDate.getDate() === startDate.getDate();
+        isVisible && startDate.setDate(startDate.getDate() + 1);
+        return {
+          date,
+          selected,
+          isVisible,
+          selectedLocation,
+          holidays,
+        };
+      });
+    });
+    return {
+      weeks,
+    };
   };
 
   navigateAction = ({type, side}, navigationDate) => {
