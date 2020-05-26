@@ -1,12 +1,10 @@
 import React from 'react';
-import Hebcal from 'hebcal';
 import {Animated, StyleSheet, TouchableOpacity, View} from 'react-native';
 import NextPrevNavigator from './../NextPrevNavigator';
 import {Text} from '@ui-kitten/components';
 import Day from './Day';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
 import ScrollSelectModal from '../ScrollSelectModal';
-import {monthsArrayHe, monthsArray} from '../constants';
 
 export default class Calender extends React.Component {
   constructor(props) {
@@ -91,8 +89,7 @@ export default class Calender extends React.Component {
     );
   };
 
-  WeekDays = ({}) => {
-    const {selectedWeek} = this.props;
+  WeekDays = ({selectedWeek}) => {
     return (
       <View style={styles.weekDays}>
         {selectedWeek.map(data => {
@@ -100,6 +97,20 @@ export default class Calender extends React.Component {
         })}
       </View>
     );
+  };
+
+  MyCalender = () => {
+    const {
+      calenderWeeks: {weeks},
+    } = this.props;
+    const {WeekDays} = this;
+    return weeks.map((week, index) => {
+      return (
+        <View key={`calenderWeek-${index}`} style={styles.calendarWrapper}>
+          <WeekDays selectedWeek={week} />
+        </View>
+      );
+    });
   };
 
   YearSelectModal = () => {
@@ -126,32 +137,32 @@ export default class Calender extends React.Component {
     );
   };
 
-  MyCalender = () => {
-    const {
-      calenderWeeks: {weeks},
-      onSelectDate,
-    } = this.props;
-    const onSelect = date => {
-      this.toggleCalender();
-      onSelectDate(date);
-    };
-    return weeks.map((week, index) => {
-      return (
-        <View
-          key={`calenderWeek-${index}`}
-          style={[styles.weekDays, styles.calendarWrapper]}>
-          {week.map((dayInWeek, dayIndex) => {
-            return (
-              <Day
-                key={`CalenderDay-${index}-${dayIndex}`}
-                fromCalender={true}
-                {...{onSelect, ...dayInWeek}}
+  ExpandCalenderIcon = ({RotateData}) => {
+    return (
+      <TouchableOpacity
+        style={styles.openCalenderButtonTouchable}
+        onPress={this.toggleCalender}>
+        <View style={styles.openCalenderButtonSVG}>
+          <Svg width={170} height={39.211} viewBox="0 0 170.482 39.122">
+            <Defs>
+              <Path
+                id="prefix__b"
+                fillRule="evenodd"
+                d="M159.326 0c-44.45 0-41.374 33.122-74.085 33.122C52.53 33.122 55.607 0 11.156 0h148.17z"
               />
-            );
-          })}
+            </Defs>
+            <Use fill="#552022" xlinkHref="#prefix__b" />
+          </Svg>
+          <Animated.View
+            style={[
+              styles.openCalenderIcon,
+              {transform: [{rotate: RotateData}]},
+            ]}>
+            <Text style={styles.openCalenderIconText}></Text>
+          </Animated.View>
         </View>
-      );
-    });
+      </TouchableOpacity>
+    );
   };
 
   render() {
@@ -161,8 +172,13 @@ export default class Calender extends React.Component {
       YearSelectModal,
       MonthSelectModal,
       MyCalender,
+      ExpandCalenderIcon,
     } = this;
-    const {weekNavigationProps, monthAndYearNavigationProps} = this.props;
+    const {
+      weekNavigationProps,
+      monthAndYearNavigationProps,
+      selectedWeek,
+    } = this.props;
     const {
       rotateAnimation,
       weekDaysDataAnimation,
@@ -184,7 +200,7 @@ export default class Calender extends React.Component {
             style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
             <View>
               <DaysNames />
-              <WeekDays />
+              <WeekDays {...{selectedWeek}} />
               <NextPrevNavigator {...weekNavigationProps} />
             </View>
           </Animated.View>
@@ -212,29 +228,7 @@ export default class Calender extends React.Component {
           </View>
         </Animated.View>
         <View style={styles.openCalenderButtonView}>
-          <TouchableOpacity
-            style={styles.openCalenderButtonTouchable}
-            onPress={this.toggleCalender}>
-            <View style={styles.openCalenderButtonSVG}>
-              <Svg width={170} height={39.211} viewBox="0 0 170.482 39.122">
-                <Defs>
-                  <Path
-                    id="prefix__b"
-                    fillRule="evenodd"
-                    d="M159.326 0c-44.45 0-41.374 33.122-74.085 33.122C52.53 33.122 55.607 0 11.156 0h148.17z"
-                  />
-                </Defs>
-                <Use fill="#552022" xlinkHref="#prefix__b" />
-              </Svg>
-              <Animated.View
-                style={[
-                  styles.openCalenderIcon,
-                  {transform: [{rotate: RotateData}]},
-                ]}>
-                <Text style={styles.openCalenderIconText}></Text>
-              </Animated.View>
-            </View>
-          </TouchableOpacity>
+          <ExpandCalenderIcon RotateData={RotateData} />
         </View>
       </View>
     );

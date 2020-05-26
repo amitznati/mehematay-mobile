@@ -176,9 +176,6 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     color: '#F3EDD0',
   },
-  calendarWrapper: {
-    paddingHorizontal: 20,
-  },
   openCalenderButtonView: {
     display: 'flex',
     flexDirection: 'column',

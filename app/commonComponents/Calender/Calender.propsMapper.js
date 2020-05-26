@@ -4,10 +4,18 @@ import {monthsArrayHe, monthsArray} from '../constants';
 export default class CalenderPropsMapper {
   constructor(props) {
     this.props = props;
+    this.year = null;
+    this.holidays = {};
   }
 
   mapProps = props => {
     this.props = props;
+    const {navigationDate} = props;
+    const heDate = new Hebcal.HDate(navigationDate);
+    if (this.year !== heDate.year) {
+      this.year = heDate.year;
+      this.holidays = new Hebcal(heDate.year).holidays;
+    }
     return {
       ...props,
       monthAndYearNavigationProps: this.getMonthAndYearNavigationProps(),
@@ -143,32 +151,11 @@ export default class CalenderPropsMapper {
   };
 
   getSelectedWeek = () => {
-    const {selectedLocation, navigationDate, selectedDate} = this.props;
-    const heDate = new Hebcal.HDate(navigationDate);
-    const holidays = new Hebcal(heDate.year).holidays;
+    const {navigationDate} = this.props;
     const sunday = new Date(navigationDate);
     sunday.setDate(sunday.getDate() - navigationDate.getDay());
     return [0, 1, 2, 3, 4, 5, 6].map(day => {
-      const next = new Date(sunday);
-      next.setDate(sunday.getDate() + day);
-      const selected =
-        next.getDate() === selectedDate.getDate() &&
-        next.getMonth() === selectedDate.getMonth() &&
-        next.getFullYear() === selectedDate.getFullYear();
-      const key = `${next.getDate()}-${next.getMonth() + 1}`;
-      return {
-        date: {
-          day: next.getDate(),
-          year: next.getFullYear(),
-          month: next.getMonth() + 1,
-        },
-        selected,
-        isVisible: true,
-        onSelect: this.onSelectDate,
-        selectedLocation,
-        key,
-        holidays,
-      };
+      return this.getWeekDays(sunday, day, true);
     });
   };
 
@@ -213,37 +200,46 @@ export default class CalenderPropsMapper {
   };
 
   getCalenderWeeks = () => {
-    const {navigationDate, selectedLocation, selectedDate} = this.props;
-    const heDate = new Hebcal.HDate(navigationDate);
-    const holidays = new Hebcal(heDate.year).holidays;
+    const {navigationDate} = this.props;
     const startDate = new Date(navigationDate);
     startDate.setDate(1);
     const weeks = Hebcal.range(0, 5).map(week => {
       return Hebcal.range(0, 6).map(dayInWeek => {
-        const isVisible =
-          startDate.getDay() === dayInWeek &&
-          startDate.getMonth() === navigationDate.getMonth();
-        const date = {
-          year: startDate.getFullYear(),
-          month: startDate.getMonth() + 1,
-          day: startDate.getDate(),
-        };
-        const selected =
-          selectedDate.getFullYear() === startDate.getFullYear() &&
-          selectedDate.getMonth() === startDate.getMonth() &&
-          selectedDate.getDate() === startDate.getDate();
-        isVisible && startDate.setDate(startDate.getDate() + 1);
-        return {
-          date,
-          selected,
-          isVisible,
-          selectedLocation,
-          holidays,
-        };
+        return this.getWeekDays(startDate, dayInWeek);
       });
     });
     return {
       weeks,
+    };
+  };
+
+  getWeekDays = (startDate, dayInWeek, isForWeek) => {
+    const {navigationDate, selectedDate, selectedLocation} = this.props;
+    const isVisible =
+      isForWeek ||
+      (startDate.getDay() === dayInWeek &&
+        startDate.getMonth() === navigationDate.getMonth());
+    const date = {
+      year: startDate.getFullYear(),
+      month: startDate.getMonth() + 1,
+      day: startDate.getDate(),
+    };
+    const selected =
+      selectedDate.getFullYear() === startDate.getFullYear() &&
+      selectedDate.getMonth() === startDate.getMonth() &&
+      selectedDate.getDate() === startDate.getDate();
+    isVisible && startDate.setDate(startDate.getDate() + 1);
+    const key = `${isForWeek ? 'WeekDay' : 'CalenderDay'}-
+    ${date.month}-
+    ${dayInWeek}`;
+    return {
+      date,
+      selected,
+      isVisible,
+      selectedLocation,
+      holidays: this.holidays,
+      key,
+      onSelect: this.onSelectDate,
     };
   };
 
