@@ -1,8 +1,9 @@
 import GetLocation from 'react-native-get-location';
 import moment from 'moment-timezone';
+import Hebcal from 'hebcal';
 import BaseApi from '../../../sdk/BaseApi';
 import selectors from './DayTimesSelectors';
-import Hebcal from 'hebcal';
+import config from '../../../sdk/config';
 
 export const ActionTypes = {
   LOAD_SUN_TIMES: 'LOAD_SUN_TIMES',
@@ -98,24 +99,31 @@ export default class DayTimesApi extends BaseApi {
   };
 
   loadSunTimesCurrentLocation = async () => {
-    this.startSpinner('loadSunTimesCurrentLocation');
-    this.initialDate();
-    GetLocation.getCurrentPosition({enableHighAccuracy: true, timeout: 15000})
-      .then(res => {
-        this.APIsInstances.SearchLocationApi.getCityLocationByCoords(res).then(
-          this.onSelectLocation,
-        );
-        this.stopSpinner('loadSunTimesCurrentLocation');
-      })
-      .catch(error => {
-        const {code, message} = error;
-        console.warn(code, message);
-        this.dispatchStoreAction({
-          type: ActionTypes.LOAD_CURRENT_LOCATION_TIMES_ERROR,
-          payload: error,
+    if (config.useMocks) {
+      this.APIsInstances.SearchLocationApi.getCityLocationByCoords({
+        latitude: 31.0579367,
+        longitude: 35.0389234,
+      }).then(this.onSelectLocation);
+    } else {
+      this.startSpinner('loadSunTimesCurrentLocation');
+      this.initialDate();
+      GetLocation.getCurrentPosition({enableHighAccuracy: true, timeout: 15000})
+        .then(res => {
+          this.APIsInstances.SearchLocationApi.getCityLocationByCoords(
+            res,
+          ).then(this.onSelectLocation);
+          this.stopSpinner('loadSunTimesCurrentLocation');
+        })
+        .catch(error => {
+          const {code, message} = error;
+          console.warn(code, message);
+          this.dispatchStoreAction({
+            type: ActionTypes.LOAD_CURRENT_LOCATION_TIMES_ERROR,
+            payload: error,
+          });
+          this.stopSpinner('loadSunTimesCurrentLocation');
         });
-        this.stopSpinner('loadSunTimesCurrentLocation');
-      });
+    }
   };
 
   getLoadCurrentLocationTimesErrorSelector = () => {
