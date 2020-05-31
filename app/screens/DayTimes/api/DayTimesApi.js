@@ -30,10 +30,6 @@ const dayTimesTemplateObj = [
   {key: 'tzetHakohavimRT', title: 'צאת הכוכבים ר"ת'},
 ];
 export default class DayTimesApi extends BaseApi {
-  getDayTimesSelector = () => {
-    return selectors.getDayTimesSelector(this.store.getState());
-  };
-
   loadSunTimes = async (coords, date = this.getSelectedDateSelector()) => {
     const heDate = new Hebcal.HDate(date);
     heDate.setLocation(coords.latitude, coords.longitude);
@@ -99,6 +95,7 @@ export default class DayTimesApi extends BaseApi {
   };
 
   loadSunTimesCurrentLocation = async () => {
+    this.initialDate();
     if (config.useMocks) {
       this.APIsInstances.SearchLocationApi.getCityLocationByCoords({
         latitude: 31.0579367,
@@ -106,7 +103,6 @@ export default class DayTimesApi extends BaseApi {
       }).then(this.onSelectLocation);
     } else {
       this.startSpinner('loadSunTimesCurrentLocation');
-      this.initialDate();
       GetLocation.getCurrentPosition({enableHighAccuracy: true, timeout: 15000})
         .then(res => {
           this.APIsInstances.SearchLocationApi.getCityLocationByCoords(
@@ -126,14 +122,9 @@ export default class DayTimesApi extends BaseApi {
     }
   };
 
-  getLoadCurrentLocationTimesErrorSelector = () => {
-    return selectors.getLoadCurrentLocationTimesErrorSelector(
-      this.store.getState(),
-    );
-  };
-
   onDateChange = async selectedDate => {
     this.setSelectedDate(selectedDate);
+    this.setNavigationDate(selectedDate);
     const location = this.getSelectedLocationSelector();
     if (location && location.coords) {
       await this.loadSunTimes(location.coords, selectedDate);
@@ -161,6 +152,10 @@ export default class DayTimesApi extends BaseApi {
     });
   };
 
+  getDayTimesSelector = () => {
+    return selectors.getDayTimesSelector(this.store.getState());
+  };
+
   getSelectedDateSelector = () => {
     return selectors.getSelectedDateSelector(this.store.getState());
   };
@@ -171,5 +166,11 @@ export default class DayTimesApi extends BaseApi {
 
   getSelectedLocationSelector = () => {
     return selectors.getSelectedLocationSelector(this.store.getState());
+  };
+
+  getLoadCurrentLocationTimesErrorSelector = () => {
+    return selectors.getLoadCurrentLocationTimesErrorSelector(
+      this.store.getState(),
+    );
   };
 }

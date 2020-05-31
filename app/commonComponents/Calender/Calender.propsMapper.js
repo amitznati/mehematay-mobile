@@ -150,15 +150,6 @@ export default class CalenderPropsMapper {
     };
   };
 
-  getSelectedWeek = () => {
-    const {navigationDate} = this.props;
-    const sunday = new Date(navigationDate);
-    sunday.setDate(sunday.getDate() - navigationDate.getDay());
-    return [0, 1, 2, 3, 4, 5, 6].map(day => {
-      return this.getWeekDays(sunday, day, true);
-    });
-  };
-
   getMonthSelectModalProps = () => {
     const {navigationDate} = this.props;
     const months = Hebcal.range(0, 11).map(monthIndex => {
@@ -203,14 +194,20 @@ export default class CalenderPropsMapper {
     const {navigationDate} = this.props;
     const startDate = new Date(navigationDate);
     startDate.setDate(1);
-    const weeks = Hebcal.range(0, 5).map(week => {
+    return Hebcal.range(0, 5).map(week => {
       return Hebcal.range(0, 6).map(dayInWeek => {
         return this.getWeekDays(startDate, dayInWeek);
       });
     });
-    return {
-      weeks,
-    };
+  };
+
+  getSelectedWeek = () => {
+    const {navigationDate} = this.props;
+    const sunday = new Date(navigationDate);
+    sunday.setDate(sunday.getDate() - navigationDate.getDay());
+    return [0, 1, 2, 3, 4, 5, 6].map(day => {
+      return this.getWeekDays(sunday, day, true);
+    });
   };
 
   getWeekDays = (startDate, dayInWeek, isForWeek) => {
@@ -255,6 +252,7 @@ export default class CalenderPropsMapper {
     if (type === 'year') {
       newDate.setFullYear(newDate.getFullYear() + addToType());
     } else if (type === 'month') {
+      newDate.setDate(15);
       newDate.setMonth(newDate.getMonth() + addToType());
     } else if (type === 'week') {
       newDate.setDate(newDate.getDate() + addToType() * 7);

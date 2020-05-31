@@ -2,8 +2,7 @@ import React from 'react';
 import {StyleSheet, View, TouchableOpacity, Dimensions} from 'react-native';
 import {Text} from '@ui-kitten/components';
 import Hebcal from 'hebcal';
-
-const {width} = Dimensions.get('window');
+import {monthsArrayHe} from '../constants';
 
 const isToday = someDate => {
   const today = new Date();
@@ -22,6 +21,15 @@ const getEventText = (events = [], heDate) => {
   let text = eventText && eventText.desc[2];
   if (text === 'שבת') {
     text = heDate.getSedra('h').join(' ');
+  }
+  if (text && text.includes('ראש חודש')) {
+    if (text === "ראש חודש א'") {
+      text = `${monthsArrayHe[heDate.month + 1]} א'`;
+    } else if (text === "ראש חודש ב'") {
+      text = `${monthsArrayHe[heDate.month]} ב'`;
+    } else {
+      text = monthsArrayHe[heDate.month];
+    }
   }
   return text;
 };

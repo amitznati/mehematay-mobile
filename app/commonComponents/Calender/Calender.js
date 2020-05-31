@@ -1,10 +1,20 @@
 import React from 'react';
-import {Animated, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Animated,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  VirtualizedList,
+  SafeAreaView,
+  Dimensions,
+} from 'react-native';
 import NextPrevNavigator from './../NextPrevNavigator';
 import {Text} from '@ui-kitten/components';
 import Day from './Day';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
 import ScrollSelectModal from '../ScrollSelectModal';
+
+const {width} = Dimensions.get('window');
 
 export default class Calender extends React.Component {
   constructor(props) {
@@ -100,17 +110,48 @@ export default class Calender extends React.Component {
   };
 
   MyCalender = () => {
-    const {
-      calenderWeeks: {weeks},
-    } = this.props;
+    const {calenderWeeks = []} = this.props;
     const {WeekDays} = this;
-    return weeks.map((week, index) => {
+    return calenderWeeks.map((week, index) => {
       return (
         <View key={`calenderWeek-${index}`} style={styles.calendarWrapper}>
           <WeekDays selectedWeek={week} />
         </View>
       );
     });
+  };
+
+  YearCalender = () => {
+    const {yearMonths: data} = this.props;
+    return (
+      <SafeAreaView style={styles.modalContainer}>
+        <VirtualizedList
+          ref={this.scrollView_ref}
+          onLayout={() =>
+            this.scrollView_ref.current.scrollToIndex({
+              index: 4,
+              animated: false,
+            })
+          }
+          data={data}
+          initialNumToRender={3}
+          renderItem={({item}) => item.item}
+          keyExtractor={item => `${item.id}`}
+          getItemCount={() => data.length}
+          getItem={(_data, index) => {
+            return {
+              id: data[index].key,
+              title: data[index].title,
+            };
+          }}
+          getItemLayout={(_data, index) => ({
+            length: width,
+            offset: width * index,
+            index,
+          })}
+        />
+      </SafeAreaView>
+    );
   };
 
   YearSelectModal = () => {
