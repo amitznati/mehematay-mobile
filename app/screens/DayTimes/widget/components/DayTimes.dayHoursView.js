@@ -1,11 +1,14 @@
 import React from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View, Linking} from 'react-native';
 import {Text} from '@ui-kitten/components';
 
 export default function DayHoursView({dayTimes = []}) {
+  const openDetails = async () => {
+    await Linking.openURL('https://www.yeshiva.org.il/calendar/timeprinciples');
+  };
   if (dayTimes.length) {
     dayTimes.find(t => t.key === 'dayHour').description = (
-      <TouchableOpacity>
+      <TouchableOpacity onPress={openDetails}>
         <Text style={{color: '#706F6C', fontFamily: 'Assistant-Light'}}>
           שעה זמנית לפי הגר"א מחושבת ע"י זמן זריחה עד זמן שקיעה לחלק ל 12
           שעות...
@@ -34,7 +37,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 8,
-    paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#8E3032',
   },

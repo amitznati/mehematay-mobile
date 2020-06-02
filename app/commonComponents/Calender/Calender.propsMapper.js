@@ -165,7 +165,7 @@ export default class CalenderPropsMapper {
       };
     });
     return {
-      months,
+      data: months,
       defaultIndex: navigationDate.getMonth(),
     };
   };

@@ -11,6 +11,7 @@ import {Text, Icon, Layout, Modal} from '@ui-kitten/components';
 import {Calender} from '../../../../commonComponents';
 import SearchLocation from '../../../SearchLocation/widget/SearchLocation.connect';
 import DayHoursView from './DayTimes.dayHoursView';
+import NextEvents from './DayTimes.nextEvents';
 
 const {width} = Dimensions.get('window');
 
@@ -70,6 +71,7 @@ export default class DayTimesMockMainView extends React.Component {
       setSelectedDate,
       selectedLocation,
       selectedDateFormatted,
+      nextEvents,
     } = this.props;
     return (
       <ScrollView
@@ -105,12 +107,33 @@ export default class DayTimesMockMainView extends React.Component {
         />
         <View style={styles.pageContent}>
           <View style={styles.selectedDateWrap}>
-            <Text style={styles.selectedDateText}>
-              {selectedDateFormatted.formattedDate}
+            <Text
+              style={{
+                color: '#706F6C',
+                fontFamily: 'Assistant-Regular',
+                fontSize: 16,
+                lineHeight: 16,
+              }}>
+              זמני היום עבור:
             </Text>
+            {selectedDateFormatted.event && (
+              <Text
+                style={[
+                  styles.selectedDateText,
+                  {fontSize: 20, lineHeight: 20, alignSelf: 'center'},
+                ]}>
+                {selectedDateFormatted.event}
+              </Text>
+            )}
             <Text style={styles.selectedDateText}>
               {selectedDateFormatted.formattedDateHe}
             </Text>
+            <Text style={styles.selectedDateText}>
+              {selectedDateFormatted.formattedDate}
+            </Text>
+          </View>
+          <View>
+            <NextEvents events={nextEvents} />
           </View>
           <DayHoursView dayTimes={dayTimes} />
         </View>
@@ -207,16 +230,15 @@ const styles = StyleSheet.create({
   },
   selectedDateWrap: {
     display: 'flex',
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
     marginBottom: 6,
   },
   selectedDateText: {
-    fontFamily: 'Assistant-Regular',
+    fontFamily: 'Assistant-Bold',
     fontSize: 16,
     lineHeight: 16,
     color: '#706F6C',
-    paddingHorizontal: 10,
   },
 });

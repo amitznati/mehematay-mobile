@@ -1,42 +1,64 @@
 import React from 'react';
-import {
-  Animated,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  VirtualizedList,
-  SafeAreaView,
-  Dimensions,
-} from 'react-native';
+import {Animated, StyleSheet, TouchableOpacity, View} from 'react-native';
 import NextPrevNavigator from './../NextPrevNavigator';
 import {Text} from '@ui-kitten/components';
 import Day from './Day';
 import Svg, {Defs, Path, Use} from 'react-native-svg';
 import ScrollSelectModal from '../ScrollSelectModal';
 
-const {width} = Dimensions.get('window');
+const DaysNames = () => {
+  return (
+    <View style={styles.weekDays}>
+      {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map(day => {
+        return (
+          <Text key={day} style={styles.weekDaysDayInWeekText}>
+            {day}
+          </Text>
+        );
+      })}
+    </View>
+  );
+};
 
-export default class Calender extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      calenderHeightAnimation: new Animated.Value(1),
-      rotateAnimation: new Animated.Value(0),
-      opacityAnimation: new Animated.Value(1),
-      weekDaysDataAnimation: new Animated.Value(180),
-      yearsModalOpen: false,
-      monthsModalOpen: false,
-    };
-  }
+const WeekDays = ({week, onSelectDate}) => {
+  return (
+    <View style={styles.weekDays}>
+      {week.map(data => {
+        return <Day {...data} onSelect={onSelectDate || data.onSelect} />;
+      })}
+    </View>
+  );
+};
 
-  toggleCalender = () => {
-    const {
-      calenderHeightAnimation,
-      rotateAnimation,
-      opacityAnimation,
-      weekDaysDataAnimation,
-      isCalenderOpen,
-    } = this.state;
+const MyCalender = ({weeks, onSelectDate}) => {
+  return weeks.map((week, index) => {
+    return (
+      <View key={`calenderWeek-${index}`} style={styles.calendarWrapper}>
+        <WeekDays {...{week, onSelectDate}} />
+      </View>
+    );
+  });
+};
+
+const Calender = ({
+  calenderWeeks = [],
+  yearSelectModalProps,
+  monthSelectModalProps,
+  weekNavigationProps,
+  monthAndYearNavigationProps,
+  selectedWeek,
+  onSelectDate,
+  ...props
+}) => {
+  const [calenderHeightAnimation] = React.useState(new Animated.Value(1));
+  const [rotateAnimation] = React.useState(new Animated.Value(0));
+  const [opacityAnimation] = React.useState(new Animated.Value(1));
+  const [weekDaysDataAnimation] = React.useState(new Animated.Value(180));
+  const [yearsModalOpen, setYearsModalOpen] = React.useState(false);
+  const [monthsModalOpen, setMonthsModalOpen] = React.useState(false);
+  const [isCalenderOpen, setIsCalenderOpen] = React.useState(false);
+
+  const toggleCalender = () => {
     Animated.parallel([
       Animated.timing(calenderHeightAnimation, {
         toValue: isCalenderOpen ? 1 : 550,
@@ -55,134 +77,47 @@ export default class Calender extends React.Component {
         duration: 500,
       }),
     ]).start(() => {
-      this.setState({isCalenderOpen: !isCalenderOpen});
+      setIsCalenderOpen(!isCalenderOpen);
     });
   };
 
-  openYearsSelectModal = () => {
-    this.setState({yearsModalOpen: true});
+  const onSelectYear = item => {
+    setYearsModalOpen(false);
+    props.onSelectYear(item.id);
   };
 
-  closeYearsModal = () => {
-    this.setState({yearsModalOpen: false});
+  const onSelectMonth = item => {
+    setMonthsModalOpen(false);
+    props.onSelectMonth(item.id);
   };
 
-  openMonthSelectModal = () => {
-    this.setState({monthsModalOpen: true});
-  };
-
-  closeMonthModal = () => {
-    this.setState({monthsModalOpen: false});
-  };
-
-  onSelectYear = item => {
-    this.closeYearsModal();
-    this.props.onSelectYear(item.id);
-  };
-
-  onSelectMonth = item => {
-    this.closeMonthModal();
-    this.props.onSelectMonth(item.id);
-  };
-
-  DaysNames = () => {
-    return (
-      <View style={styles.weekDays}>
-        {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map(day => {
-          return (
-            <Text key={day} style={styles.weekDaysDayInWeekText}>
-              {day}
-            </Text>
-          );
-        })}
-      </View>
-    );
-  };
-
-  WeekDays = ({selectedWeek}) => {
-    return (
-      <View style={styles.weekDays}>
-        {selectedWeek.map(data => {
-          return <Day {...data} />;
-        })}
-      </View>
-    );
-  };
-
-  MyCalender = () => {
-    const {calenderWeeks = []} = this.props;
-    const {WeekDays} = this;
-    return calenderWeeks.map((week, index) => {
-      return (
-        <View key={`calenderWeek-${index}`} style={styles.calendarWrapper}>
-          <WeekDays selectedWeek={week} />
-        </View>
-      );
-    });
-  };
-
-  YearCalender = () => {
-    const {yearMonths: data} = this.props;
-    return (
-      <SafeAreaView style={styles.modalContainer}>
-        <VirtualizedList
-          ref={this.scrollView_ref}
-          onLayout={() =>
-            this.scrollView_ref.current.scrollToIndex({
-              index: 4,
-              animated: false,
-            })
-          }
-          data={data}
-          initialNumToRender={3}
-          renderItem={({item}) => item.item}
-          keyExtractor={item => `${item.id}`}
-          getItemCount={() => data.length}
-          getItem={(_data, index) => {
-            return {
-              id: data[index].key,
-              title: data[index].title,
-            };
-          }}
-          getItemLayout={(_data, index) => ({
-            length: width,
-            offset: width * index,
-            index,
-          })}
-        />
-      </SafeAreaView>
-    );
-  };
-
-  YearSelectModal = () => {
-    const {yearSelectModalProps} = this.props;
+  const YearSelectModal = () => {
     return (
       <ScrollSelectModal
-        closeModal={this.closeYearsModal}
         {...yearSelectModalProps}
-        modalOpen={this.state.yearsModalOpen}
-        onSelect={this.onSelectYear}
+        closeModal={() => setYearsModalOpen(false)}
+        modalOpen={yearsModalOpen}
+        onSelect={onSelectYear}
       />
     );
   };
 
-  MonthSelectModal = () => {
-    const {monthSelectModalProps} = this.props;
+  const MonthSelectModal = () => {
     return (
       <ScrollSelectModal
-        closeModal={this.closeMonthModal}
         {...monthSelectModalProps}
-        modalOpen={this.state.monthsModalOpen}
-        onSelect={this.onSelectMonth}
+        closeModal={() => setMonthsModalOpen(false)}
+        modalOpen={monthsModalOpen}
+        onSelect={onSelectMonth}
       />
     );
   };
 
-  ExpandCalenderIcon = ({RotateData}) => {
+  const ExpandCalenderIcon = ({RotateData}) => {
     return (
       <TouchableOpacity
         style={styles.openCalenderButtonTouchable}
-        onPress={this.toggleCalender}>
+        onPress={toggleCalender}>
         <View style={styles.openCalenderButtonSVG}>
           <Svg width={170} height={39.211} viewBox="0 0 170.482 39.122">
             <Defs>
@@ -206,75 +141,58 @@ export default class Calender extends React.Component {
     );
   };
 
-  render() {
-    const {
-      DaysNames,
-      WeekDays,
-      YearSelectModal,
-      MonthSelectModal,
-      MyCalender,
-      ExpandCalenderIcon,
-    } = this;
-    const {
-      weekNavigationProps,
-      monthAndYearNavigationProps,
-      selectedWeek,
-    } = this.props;
-    const {
-      rotateAnimation,
-      weekDaysDataAnimation,
-      opacityAnimation,
-      calenderHeightAnimation,
-      yearsModalOpen,
-      monthsModalOpen,
-    } = this.state;
-    const RotateData = rotateAnimation.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['-90deg', '90deg'],
-    });
-    return (
-      <View>
-        {yearsModalOpen && <YearSelectModal />}
-        {monthsModalOpen && <MonthSelectModal />}
-        <View style={styles.topWrapper}>
-          <Animated.View
-            style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
-            <View>
-              <DaysNames />
-              <WeekDays {...{selectedWeek}} />
-              <NextPrevNavigator {...weekNavigationProps} />
-            </View>
-          </Animated.View>
-        </View>
-        <Animated.View style={{height: calenderHeightAnimation}}>
-          <View style={styles.calendarWrapper}>
-            <NextPrevNavigator
-              {...monthAndYearNavigationProps.year}
-              main={{
-                ...monthAndYearNavigationProps.year.main,
-                clickAction: this.openYearsSelectModal,
-              }}
-            />
-            <NextPrevNavigator
-              {...monthAndYearNavigationProps.month}
-              main={{
-                ...monthAndYearNavigationProps.month.main,
-                clickAction: this.openMonthSelectModal,
-              }}
-            />
-            <DaysNames />
-          </View>
+  const RotateData = rotateAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-90deg', '90deg'],
+  });
+  return (
+    <View>
+      {yearsModalOpen && <YearSelectModal />}
+      {monthsModalOpen && <MonthSelectModal />}
+      <View style={styles.topWrapper}>
+        <Animated.View
+          style={{height: weekDaysDataAnimation, opacity: opacityAnimation}}>
           <View>
-            <MyCalender />
+            <DaysNames />
+            <WeekDays week={selectedWeek} />
+            <NextPrevNavigator {...weekNavigationProps} />
           </View>
         </Animated.View>
-        <View style={styles.openCalenderButtonView}>
-          <ExpandCalenderIcon RotateData={RotateData} />
-        </View>
       </View>
-    );
-  }
-}
+      <Animated.View style={{height: calenderHeightAnimation}}>
+        <View style={styles.calendarWrapper}>
+          <NextPrevNavigator
+            {...monthAndYearNavigationProps.year}
+            main={{
+              ...monthAndYearNavigationProps.year.main,
+              clickAction: () => setYearsModalOpen(true),
+            }}
+          />
+          <NextPrevNavigator
+            {...monthAndYearNavigationProps.month}
+            main={{
+              ...monthAndYearNavigationProps.month.main,
+              clickAction: () => setMonthsModalOpen(true),
+            }}
+          />
+          <DaysNames />
+        </View>
+        <View>
+          <MyCalender
+            weeks={calenderWeeks}
+            onSelectDate={date => {
+              isCalenderOpen && toggleCalender();
+              onSelectDate(date);
+            }}
+          />
+        </View>
+      </Animated.View>
+      <View style={styles.openCalenderButtonView}>
+        <ExpandCalenderIcon RotateData={RotateData} />
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   yearsModalItemWrap: {
@@ -388,3 +306,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 });
+
+export default Calender;

@@ -11,6 +11,8 @@ const mapStateToProps = () => {
     selectedLocation: dayTimesApi.getSelectedLocationSelector(),
     loadCurrentLocationTimesError: dayTimesApi.getLoadCurrentLocationTimesErrorSelector(),
     navigationDate: dayTimesApi.getNavigationDateSelector(),
+    selectedDateFormatted: dayTimesApi.getSelectedDateFormats(),
+    nextEvents: dayTimesApi.getNextEvents(),
   };
 };
 

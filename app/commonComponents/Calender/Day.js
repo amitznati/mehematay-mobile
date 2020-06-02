@@ -23,13 +23,10 @@ const getEventText = (events = [], heDate) => {
     text = heDate.getSedra('h').join(' ');
   }
   if (text && text.includes('ראש חודש')) {
-    if (text === "ראש חודש א'") {
-      text = `${monthsArrayHe[heDate.month + 1]} א'`;
-    } else if (text === "ראש חודש ב'") {
-      text = `${monthsArrayHe[heDate.month]} ב'`;
-    } else {
-      text = monthsArrayHe[heDate.month];
-    }
+    text = text.replace(
+      'ראש חודש',
+      `${monthsArrayHe[heDate.next().month - 1]} `,
+    );
   }
   return text;
 };

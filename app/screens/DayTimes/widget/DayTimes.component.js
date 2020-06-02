@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
+import React from 'react';
 import DayTimesMainView from './components/DayTimes.mainView';
 import PropsMapper from './DayTimes.propsMapper';
 
-export default class DayTimesComponent extends Component {
+export default class DayTimesComponent extends React.Component {
   constructor(props) {
     super(props);
     this.propsMapper = new PropsMapper(props);
