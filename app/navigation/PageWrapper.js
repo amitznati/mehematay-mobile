@@ -1,17 +1,10 @@
 import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  NativeModules,
-} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Dimensions} from 'react-native';
 import {Text} from '@ui-kitten/components';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const {width} = Dimensions.get('window');
-const {StatusBarManager} = NativeModules;
 const MyHeader = ({navigation, title}) => {
   return (
     <View style={styles.headerWrap}>
@@ -57,22 +50,17 @@ export default function PageWrapper({Page, navigation, title}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     width,
-    paddingTop: (StatusBarManager && StatusBarManager.HEIGHT) || 24,
     zIndex: -1,
   },
   headerWrap: {
     width,
-    height: 70,
+    height: 60,
   },
   titleTextWrap: {
     display: 'flex',
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    //justifyContent: 'flex-end',
-    //height: 70,
   },
   titleText: {
     fontFamily: 'Assistant-Light',
@@ -90,9 +78,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 70,
-    paddingTop: 10,
-    //zIndex: 1,
+    height: 60,
   },
   headerTitleStyle: {
     fontFamily: 'drugulinclm-bold-webfont',
@@ -108,5 +94,5 @@ const styles = StyleSheet.create({
     height: 5,
     zIndex: 1,
   },
-  pageWrap: {},
+  pageWrap: {flex: 1},
 });

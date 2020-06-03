@@ -180,7 +180,7 @@ export default class CalenderPropsMapper {
       const heYear = Hebcal.gematriya(
         new Hebcal.HDate(new Date(year, 1, 1)).year,
       );
-      return `${year} ${heYear}`;
+      return `${year} ~ ${heYear}`;
     };
 
     const data = years.map(year => ({key: year, title: yearText(year)}));
