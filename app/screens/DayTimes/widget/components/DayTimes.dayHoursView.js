@@ -1,26 +1,66 @@
 import React from 'react';
-import Timeline from 'react-native-timeline-flatlist';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Text} from '@ui-kitten/components';
 
 export default function DayHoursView({dayTimes = []}) {
-  return (
-    <Timeline
-      listViewContainerStyle={{paddingBottom: 40, paddingTop: 15}}
-      circleSize={20}
-      circleColor="rgb(45,156,219)"
-      lineColor="rgb(45,156,219)"
-      timeContainerStyle={{minWidth: 52}}
-      timeStyle={{
-        textAlign: 'center',
-        backgroundColor: '#ff9797',
-        color: 'white',
-        padding: 5,
-        borderRadius: 13,
-      }}
-      descriptionStyle={{color: 'gray', minHeight: 200}}
-      options={{
-        style: {paddingTop: 15, paddingBottom: 15},
-      }}
-      data={dayTimes}
-    />
-  );
+  if (dayTimes.length) {
+    dayTimes.find(t => t.key === 'dayHour').description = (
+      <TouchableOpacity>
+        <Text style={{color: '#706F6C', fontFamily: 'Assistant-Light', textAlign: 'right'}}>
+          שעה זמנית לפי הגר"א מחושבת ע"י זמן זריחה עד זמן שקיעה לחלק ל 12
+          שעות...
+          <Text style={{color: '#3d61cd'}}>פרטים</Text>
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+  return dayTimes.map(dayTime => {
+    return (
+      <View style={styles.dayTimeWrap} key={dayTime.key}>
+        <View style={styles.dayTimeTitleWrap}>
+          <Text style={styles.dayTimeTitle}>{dayTime.title}</Text>
+          {dayTime.description}
+
+        </View>
+        <Text style={styles.timeStyle}>{dayTime.time}</Text>
+      </View>
+    );
+  });
 }
+
+const styles = StyleSheet.create({
+  dayTimeWrap: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#8E3032',
+  },
+  dayTimeTitleWrap: {
+    width: 200,
+  },
+  dayTimeTitle: {
+    color: '#706F6C',
+    fontFamily: 'Assistant-Bold',
+    fontSize: 18,
+    lineHeight: 18,
+    textAlign: 'right'
+  },
+  dayTimeDescription: {
+    textAlign: 'right'
+  },
+  timeStyle: {
+    fontFamily: 'Assistant-Regular',
+    textAlign: 'center',
+    backgroundColor: '#8E3032',
+    color: '#F3EDD0',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    marginLeft: 40,
+    borderRadius: 13,
+    overflow: 'hidden',
+  },
+});

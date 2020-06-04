@@ -6,7 +6,6 @@ export const SearchInput = ({onSearch}) => {
   const [value, setValue] = React.useState('');
 
   const onIconPress = () => {
-    console.log(value);
     value && onSearch && onSearch(value);
   };
 

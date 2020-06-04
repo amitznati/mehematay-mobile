@@ -8,6 +8,17 @@ export default class BaseApi {
     this.store.dispatch(action);
   };
 
+  spinnerAction = (isOn, options, spinnerId) => {
+    this.dispatchStoreAction({
+      type: 'SPINNER_ACTION',
+      payload: {isOn, options, spinnerId},
+    });
+  };
+  startSpinner = (spinnerId, options) =>
+    this.spinnerAction(true, options, spinnerId);
+  stopSpinner = (spinnerId, options) =>
+    this.spinnerAction(false, options, spinnerId);
+
   getServiceRequestType = type => `${type}_REQUEST`;
   getServiceSuccessType = type => `${type}_SUCCESS`;
   getServiceFailureType = type => `${type}_FAILURE`;
@@ -32,11 +43,10 @@ export default class BaseApi {
       const serviceRequestResponse = await Promise.resolve(
         getSuccessPayload(res),
       );
-      actionType &&
-        this.dispatchStoreAction({
-          type: successType,
-          payload: serviceRequestResponse,
-        });
+      this.dispatchStoreAction({
+        type: successType,
+        payload: serviceRequestResponse,
+      });
       return serviceRequestResponse;
     } catch (err) {
       const serviceRequestErr = await Promise.resolve(getErrorPayload(err));

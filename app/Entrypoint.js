@@ -1,36 +1,17 @@
 import React from 'react';
-import {PermissionsAndroid, I18nManager} from 'react-native';
+import {I18nManager} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
-import {mapping, light, dark} from '@eva-design/eva';
+import {mapping} from '@eva-design/eva';
 
 import {MaterialCommunityIconsPack} from './icons-packes/material-community-icons';
 import {MaterialIconsPack} from './icons-packes/material-icons';
 import RootNavigation from './navigation/RootNavigation';
-import {ThemeContext} from './theme-context';
+import {ThemeContext, dark, light} from './theme';
 
 const themes = {light, dark};
 I18nManager.allowRTL(false);
 I18nManager.forceRTL(false);
-
-async function requestCameraPermission() {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: 'Location permission',
-        message: 'need to access location',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      },
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  } catch (err) {
-    console.warn(err);
-  }
-}
-
 export default class EntryPoint extends React.Component {
   constructor(props) {
     super(props);
@@ -39,11 +20,6 @@ export default class EntryPoint extends React.Component {
       theme: 'light',
     };
   }
-  // componentDidMount(): void {
-  //   requestCameraPermission().then(res => {
-  //     this.setState({isLocationActive: res});
-  //   });
-  // }
 
   toggleTheme = () => {
     const {theme} = this.state;

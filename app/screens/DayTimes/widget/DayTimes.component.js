@@ -1,9 +1,20 @@
 import React, {Component} from 'react';
 import DayTimesMainView from './components/DayTimes.mainView';
-import {mapComponentProps} from './DayTimes.propsMappar';
+import PropsMapper from './DayTimes.propsMapper';
 
 export default class DayTimesComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.propsMapper = new PropsMapper(props);
+  }
+  componentDidMount() {
+    const {loadSunTimesCurrentLocation} = this.props;
+    loadSunTimesCurrentLocation();
+  }
+
   render() {
-    return <DayTimesMainView {...mapComponentProps(this.props)} />;
+    return (
+      <DayTimesMainView {...this.propsMapper.mapComponentProps(this.props)} />
+    );
   }
 }

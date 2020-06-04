@@ -5,7 +5,6 @@ import {Drawer as UIKittenDrawer} from '@ui-kitten/components';
 import {useFonts} from '@use-expo/font';
 import {AppLoading} from 'expo';
 import {DayTimes} from '../screens';
-import DayTimesMock from '../screens/DayTimes/widget/components/DayTimes.mock';
 import PageWrapper from './PageWrapper';
 
 const {width} = Dimensions.get('window');
@@ -25,10 +24,9 @@ const HomeWithHeader = ({navigation}) => {
   return <PageWrapper navigation={navigation} Page={HomeScreen} />;
 };
 const DayTimesPage = ({navigation}) => {
-  return <PageWrapper navigation={navigation} Page={DayTimes} />;
-};
-const DayTimesMockPage = ({navigation}) => {
-  return <PageWrapper navigation={navigation} Page={DayTimesMock} />;
+  return (
+    <PageWrapper navigation={navigation} Page={DayTimes} title="זמני היום" />
+  );
 };
 
 const Drawer = createDrawerNavigator();
@@ -40,7 +38,7 @@ const DrawerContent = ({navigation, state}) => {
 
   return (
     <UIKittenDrawer
-      data={[{title: 'בית'}, {title: 'זמני היום'}, {title: 'זמני היום-mock'}]}
+      data={[{title: 'בית'}, {title: 'זמני היום'}]}
       selectedIndex={state.index}
       onSelect={onSelect}
     />
@@ -56,18 +54,12 @@ let customFonts = {
 
 export default function RootNavigation() {
   let [fontsLoaded] = useFonts(customFonts);
-
   return fontsLoaded ? (
     <Drawer.Navigator
       initialRouteName="Home"
       drawerContent={props => <DrawerContent {...props} />}>
       <Drawer.Screen key="home" name="home" component={HomeWithHeader} />
       <Drawer.Screen key="dayTimes" name="dayTimes" component={DayTimesPage} />
-      <Drawer.Screen
-        key="dayTimesMock"
-        name="dayTimesMock"
-        component={DayTimesMockPage}
-      />
     </Drawer.Navigator>
   ) : (
     <AppLoading />
